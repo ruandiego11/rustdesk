@@ -58,7 +58,12 @@ def main():
     path = os.path.join(root, WORKFLOW)
     with open(path, encoding="utf-8") as f:
         text = f.read()
+    appimage_aarch64 = "          - { target: aarch64-unknown-linux-gnu, arch: aarch64 }\n"
+    if text.count(appimage_aarch64) == 1:
+        text = text.replace(appimage_aarch64, "")
     if MARK in text:
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(text)
         print("Workflow já ajustado.")
         return
 
