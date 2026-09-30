@@ -10,5 +10,14 @@
     "primaria": "1C2FA3",
     "botao": "2D8EE6",
     "id": "1C2FA3"
+  },
+  "dica": "Informe o ID e a senha abaixo ao técnico da Dktec.",
+  "contato": {
+    "titulo": "Fale com a Dktec",
+    "telefone": "+55 11 4205 8230",
+    "whatsapp": "",
+    "email": "",
+    "site": "",
+    "horario": ""
   }
 }

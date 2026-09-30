@@ -31,7 +31,7 @@ def replace(root, path, old, new, count=1):
     full = os.path.join(root, path)
     with open(full, encoding="utf-8") as f:
         text = f.read()
-    if new in text and old not in text:
+    if new in text:
         return
     found = text.count(old)
     if found != count:
@@ -87,6 +87,57 @@ def make_images(root):
     shutil.rmtree(tmp)
 
 
+def dart_str(s):
+    return json.dumps(s, ensure_ascii=False).replace("$", "\\$")
+
+
+def home_screen(root, cfg):
+    """Cartão de contato, botão "Copiar ID e senha" e ID/senha maiores no painel esquerdo."""
+    widgets = "flutter/lib/desktop/widgets"
+    shutil.copyfile(os.path.join(HERE, "flutter", "dktec_home.dart"),
+                    os.path.join(root, widgets, "dktec_home.dart"))
+    contato = cfg.get("contato", {})
+    consts = {
+        "dktecTitulo": cfg["titulo"],
+        "dktecDica": cfg.get("dica", ""),
+        "dktecContatoTitulo": contato.get("titulo", f"Fale com a {cfg['empresa']}"),
+        "dktecTelefone": contato.get("telefone", ""),
+        "dktecWhatsapp": contato.get("whatsapp", ""),
+        "dktecEmail": contato.get("email", ""),
+        "dktecSite": contato.get("site", ""),
+        "dktecHorario": contato.get("horario", ""),
+    }
+    with open(os.path.join(root, widgets, "dktec_contato.dart"), "w", encoding="utf-8") as f:
+        f.write("// Gerado por marca/personalizar.py a partir de marca/dktec.json.\n")
+        for name, value in consts.items():
+            f.write(f"const {name} = {dart_str(value)};\n")
+    print(f"  {widgets}/dktec_home.dart, dktec_contato.dart")
+
+    page = "flutter/lib/desktop/pages/desktop_home_page.dart"
+    replace(root, page, "import '../widgets/button.dart';\n",
+            "import '../widgets/button.dart';\n"
+            "import '../widgets/dktec_contato.dart';\n"
+            "import '../widgets/dktec_home.dart';\n")
+    replace(root, page, "      if (!isOutgoingOnly) buildPasswordBoard(context),\n",
+            "      if (!isOutgoingOnly) buildPasswordBoard(context),\n"
+            "      if (!isOutgoingOnly)\n"
+            "        dktecCopyButton(() => gFFI.serverModel.serverId.text,\n"
+            "            () => gFFI.serverModel.serverPasswd.text),\n"
+            "      dktecContactCard(context),\n")
+    replace(root, page, "width: isIncomingOnly ? 280.0 : 200.0,", "width: isIncomingOnly ? 280.0 : 240.0,")
+    replace(root, page, "      height: 57,\n", "      height: 64,\n")
+    replace(root, page, "                          fontSize: 22,\n",
+            "                          fontSize: 24,\n"
+            "                          fontWeight: FontWeight.w600,\n")
+    replace(root, page, "style: TextStyle(fontSize: 15),",
+            "style: TextStyle(\n"
+            "                                fontSize: 20,\n"
+            "                                fontWeight: FontWeight.w600,\n"
+            "                                letterSpacing: 1),")
+    replace(root, page, 'translate("desk_tip"),',
+            'dktecDica.isNotEmpty ? dktecDica : translate("desk_tip"),')
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     with_images = "--sem-imagens" not in sys.argv
@@ -114,6 +165,9 @@ def main():
     replace(root, "flutter/lib/desktop/widgets/tabbar_widget.dart",
             '"RustDesk",\n                              style: TextStyle(fontSize: 13)',
             f'"{cfg["titulo"]}",\n                              style: TextStyle(fontSize: 13)')
+
+    print("Tela inicial:")
+    home_screen(root, cfg)
 
     print("Informações do executável:")
     rc = "flutter/windows/runner/Runner.rc"
