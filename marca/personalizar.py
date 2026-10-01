@@ -154,6 +154,12 @@ def main():
     replace(root, "libs/hbb_common/src/config.rs",
             'RS_PUB_KEY: &str = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw="',
             f'RS_PUB_KEY: &str = "{cfg["chave"]}"')
+    replace(root, "src/common.rs",
+            'pub fn using_public_server() -> bool {\n'
+            '    crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty()\n',
+            'pub fn using_public_server() -> bool {\n'
+            '    !is_custom_client()\n'
+            '        && crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty()\n')
 
     print("Cores e título:")
     common = "flutter/lib/common.dart"
