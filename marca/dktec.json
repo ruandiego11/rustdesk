@@ -4,7 +4,7 @@
   "empresa": "Dktec",
   "descricao": "Suporte Remoto Dktec",
   "copyright": "Dktec. Baseado no RustDesk (AGPL-3.0).",
-  "servidor": "192.168.1.17",
+  "servidor": "192.168.168.131",
   "chave": "rv4k2t0hNlgBLAiyJFodaV26Tx18I2SksY0XZegyyy0=",
   "cores": {
     "primaria": "1C2FA3",

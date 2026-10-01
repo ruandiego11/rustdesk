@@ -137,16 +137,17 @@ index 4849f27..7b620dd 100644
            ));
            counter += 1;
            return ReorderableDragStartListener(
-@@ -169,8 +165,28 @@ class _PeerTabPageState extends State<PeerTabPage>
+@@ -169,8 +165,29 @@ class _PeerTabPageState extends State<PeerTabPage>
                          decoration: (hover.value
                              ? (selected ? decoBorder : deco)
                              : (selected ? decoBorder : null)),
 -                        child: Icon(model.tabIcon(t), color: color)
 -                            .paddingSymmetric(horizontal: 4),
 +                        child: Obx(() {
++                          final hovered = hover.value;
 +                          final color = selected
 +                              ? DkColors.sky400
-+                              : (hover.value
++                              : (hovered
 +                                  ? DkColors.slate200
 +                                  : DkColors.slate400);
 +                          return Row(
