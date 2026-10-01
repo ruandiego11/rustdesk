@@ -1,0 +1,16 @@
+{
+  "Continue": "Continuar",
+  "Website": "Site",
+  "Tags": "Etiquetas",
+  "Bitrate": "Taxa de bits",
+  "Apps": "Aplicativos",
+  "End call": "Encerrar chamada",
+  "File Transfer": "Transferência de arquivos",
+  "ID already exists": "Este ID já existe",
+  "Physical Keyboard Input Mode": "Modo de entrada do teclado físico",
+  "Updated successfully!": "Atualizado com sucesso!",
+  "Version: ": "Versão: ",
+  "View Camera": "Ver câmera",
+  "token is required!": "O token é obrigatório!",
+  "confirm-clear-shortcuts-inhibitor-permission-tip": "Isso vai redefinir a permissão de atalhos de teclado do RustDesk. Deseja continuar?"
+}

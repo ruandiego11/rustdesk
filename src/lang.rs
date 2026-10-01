@@ -160,7 +160,7 @@ pub fn translate(name: String) -> String {
 
 pub fn translate_locale(name: String, locale: &str) -> String {
     let lang = resolve_lang(
-        &hbb_common::config::LocalConfig::get_option("lang"),
+        "",
         "pt-BR",
         cjk_ui_unavailable(),
     );

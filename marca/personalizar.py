@@ -14,6 +14,7 @@ Rodar de novo no mesmo checkout não faz nada (as trocas já aplicadas são reco
 import base64
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -138,6 +139,46 @@ def home_screen(root, cfg):
             'dktecDica.isNotEmpty ? dktecDica : translate("desk_tip"),')
 
 
+def rust_str(s):
+    return json.dumps(s, ensure_ascii=False)
+
+
+def fixed_language(root, idioma):
+    """App sempre no idioma da marca: ignora o idioma do sistema e o salvo, tira o seletor."""
+    replace(root, "src/lang.rs",
+            '&hbb_common::config::LocalConfig::get_option("lang"),\n        locale,\n',
+            f'"",\n        "{idioma}",\n')
+    replace(root, "flutter/lib/desktop/pages/desktop_setting_page.dart",
+            "        _Card(title: 'Language', children: [language()]),\n",
+            "        if (!bind.isCustomClient())\n"
+            "          _Card(title: 'Language', children: [language()]),\n")
+    lang, _, country = idioma.partition("-")
+    locale = f"Locale('{lang}', '{country}')" if country else f"Locale('{lang}')"
+    replace(root, "flutter/lib/main.dart", "supportedLocales: supportedLocales,",
+            f"locale: const {locale}, supportedLocales: supportedLocales,", count=2)
+
+    if lang != "pt":
+        return
+    path = os.path.join(root, "src/lang/ptbr.rs")
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    with open(os.path.join(HERE, "traducoes_ptbr.json"), encoding="utf-8") as f:
+        extra = json.load(f)
+    end = "    ].iter().cloned().collect();"
+    if text.count(end) != 1:
+        sys.exit(f"ERRO: src/lang/ptbr.rs: fim da tabela {end!r} não encontrado")
+    for key, value in extra.items():
+        line = f"        ({rust_str(key)}, {rust_str(value)}),\n"
+        pattern = re.compile(r"^        \(" + re.escape(rust_str(key)) + r", .*\),\n", re.M)
+        if pattern.search(text):
+            text = pattern.sub(lambda _: line, text, count=1)
+        else:
+            text = text.replace(end, line + end)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+    print(f"  src/lang/ptbr.rs ({len(extra)} traduções da marca)")
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     with_images = "--sem-imagens" not in sys.argv
@@ -162,9 +203,8 @@ def main():
             '        && crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty()\n')
 
     if cfg.get("idioma"):
-        replace(root, "src/lang.rs",
-                '&hbb_common::config::LocalConfig::get_option("lang"),\n        locale,\n',
-                f'&hbb_common::config::LocalConfig::get_option("lang"),\n        "{cfg["idioma"]}",\n')
+        print("Idioma fixo:")
+        fixed_language(root, cfg["idioma"])
 
     print("Cores e título:")
     common = "flutter/lib/common.dart"
