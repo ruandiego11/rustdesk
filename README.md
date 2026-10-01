@@ -1,182 +1,90 @@
-<p align="center">
-  <img src="res/logo-header.svg" alt="RustDesk - Your remote desktop"><br>
-  <a href="#raw-steps-to-build">Build</a> •
-  <a href="#how-to-build-with-docker">Docker</a> •
-  <a href="#file-structure">Structure</a> •
-  <a href="#snapshot">Snapshot</a><br>
-  [<a href="docs/README-UA.md">Українська</a>] | [<a href="docs/README-CS.md">česky</a>] | [<a href="docs/README-ZH.md">中文</a>] | [<a href="docs/README-HU.md">Magyar</a>] | [<a href="docs/README-ES.md">Español</a>] | [<a href="docs/README-FA.md">فارسی</a>] | [<a href="docs/README-FR.md">Français</a>] | [<a href="docs/README-DE.md">Deutsch</a>] | [<a href="docs/README-PL.md">Polski</a>] | [<a href="docs/README-ID.md">Indonesian</a>] | [<a href="docs/README-FI.md">Suomi</a>] | [<a href="docs/README-ML.md">മലയാളം</a>] | [<a href="docs/README-JP.md">日本語</a>] | [<a href="docs/README-NL.md">Nederlands</a>] | [<a href="docs/README-IT.md">Italiano</a>] | [<a href="docs/README-RU.md">Русский</a>] | [<a href="docs/README-PTBR.md">Português (Brasil)</a>] | [<a href="docs/README-EO.md">Esperanto</a>] | [<a href="docs/README-KR.md">한국어</a>] | [<a href="docs/README-AR.md">العربي</a>] | [<a href="docs/README-VN.md">Tiếng Việt</a>] | [<a href="docs/README-DA.md">Dansk</a>] | [<a href="docs/README-GR.md">Ελληνικά</a>] | [<a href="docs/README-TR.md">Türkçe</a>] | [<a href="docs/README-NO.md">Norsk</a>] | [<a href="docs/README-RO.md">Română</a>]<br>
-  <b>We need your help to translate this README, <a href="https://github.com/rustdesk/rustdesk/tree/master/src/lang">RustDesk UI</a> and <a href="https://github.com/rustdesk/doc.rustdesk.com">RustDesk Doc</a> to your native language</b>
-</p>
+# Suporte Dktec
 
-> [!Caution]
-> **Misuse Disclaimer:** <br>
-> The developers of RustDesk do not condone or support any unethical or illegal use of this software. Misuse, such as unauthorized access, control or invasion of privacy, is strictly against our guidelines. The authors are not responsible for any misuse of the application.
+**Português:** cliente de suporte remoto usado pela Dktec para atender seus clientes. É um fork do
+[RustDesk](https://github.com/rustdesk/rustdesk) (AGPL-3.0) com a marca Dktec, interface em português
+do Brasil e o servidor próprio da Dktec já configurado. Os binários são gerados pelo GitHub Actions a
+partir deste repositório e publicados em [Releases](https://github.com/ruandiego11/rustdesk/releases).
 
+---
 
-Chat with us: [Discord](https://discord.gg/nDceKgxnkV) | [Twitter](https://twitter.com/rustdesk) | [Reddit](https://www.reddit.com/r/rustdesk) | [YouTube](https://www.youtube.com/@rustdesk)
+Suporte Dktec is the remote support client that Dktec, an IT support company in Brazil, uses to assist
+its customers. The customer runs the app, reads the ID and one-time password shown on screen to the Dktec
+technician, and the technician connects to help them.
 
-[![RustDesk Server Pro](https://img.shields.io/badge/RustDesk%20Server%20Pro-Advanced%20Features-blue)](https://rustdesk.com/pricing.html)
+It is a visible fork of [RustDesk](https://github.com/rustdesk/rustdesk), the open source remote desktop
+application, licensed under AGPL-3.0. This fork only adds:
 
-Yet another remote desktop solution, written in Rust. Works out of the box with no configuration required. You have full control of your data, with no concerns about security. You can use our rendezvous/relay server, [set up your own](https://rustdesk.com/server), or [write your own rendezvous/relay server](https://github.com/rustdesk/rustdesk-server-demo).
+- Dktec branding (name, logo, icons, colors) and a redesigned home screen;
+- a user interface fixed to Brazilian Portuguese;
+- the Dktec self-hosted ID/relay server and its public key preconfigured at build time;
+- build workflow changes to produce the Dktec Windows and Linux packages.
 
-![image](https://user-images.githubusercontent.com/71636191/171661982-430285f0-2e12-4b1d-9957-4a58e375304d.png)
+All branding is applied by [`marca/personalizar.py`](marca/personalizar.py) from
+[`marca/dktec.json`](marca/dktec.json) and the patches in [`marca/patches`](marca/patches), so every change
+against upstream is reviewable in this repository.
 
-RustDesk welcomes contribution from everyone. See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for help getting started.
+## Download
 
-[**FAQ**](https://github.com/rustdesk/rustdesk/wiki/FAQ)
+Windows (`.exe` portable/installer and `.msi`) and Linux (`.AppImage`, `.deb`, `.rpm`) packages are published
+for free on the [Releases page](https://github.com/ruandiego11/rustdesk/releases). Every release is built by
+the [`Build the flutter version of RustDesk`](.github/workflows/flutter-build.yml) GitHub Actions workflow on
+GitHub-hosted runners, from the `dktec` branch, when a `dktec-*` tag is pushed.
 
-[**BINARY DOWNLOAD**](https://github.com/rustdesk/rustdesk/releases)
+## Install and uninstall
 
-[**NIGHTLY BUILD**](https://github.com/rustdesk/rustdesk/releases/tag/nightly)
+- **Windows, `.exe`:** run it to use the app without installing. To install, click *Instalar* inside the app.
+  To uninstall, use *Settings > Apps > Installed apps > SuporteDktec > Uninstall* (or *Control Panel >
+  Programs and Features*).
+- **Windows, `.msi`:** installs the app; uninstall it the same way as above.
+- **Linux, `.AppImage`:** run it directly; delete the file to remove it.
+- **Linux, `.deb` / `.rpm`:** install with the package manager; uninstall with `sudo apt remove rustdesk` or
+  `sudo dnf remove rustdesk`.
 
-[<img src="https://f-droid.org/badge/get-it-on.png"
-    alt="Get it on F-Droid"
-    height="80">](https://f-droid.org/en/packages/com.carriez.flutter_hbb)
-[<img src="https://flathub.org/api/badge?svg&locale=en"
-    alt="Get it on Flathub"
-    height="80">](https://flathub.org/apps/com.rustdesk.RustDesk)
+Installing on Windows asks for administrator permission (UAC) because it registers a Windows service, which
+allows the technician to keep working while the app elevates privileges; uninstalling removes the service.
 
-## Dependencies
+## Building
 
-Desktop versions use Flutter or Sciter (deprecated) for GUI, this tutorial is for Sciter only, since it is easier and more friendly to start. Check out our [CI](https://github.com/rustdesk/rustdesk/blob/master/.github/workflows/flutter-build.yml) for building Flutter version.
+The [build workflow](.github/workflows/flutter-build.yml) is the reference build. It checks out this
+repository, runs `python3 marca/personalizar.py . --sem-imagens` to apply the branding, and then builds with
+the upstream RustDesk tooling (`build.py`, Flutter, Rust). See the upstream
+[build instructions](https://github.com/rustdesk/rustdesk#build) for local builds.
 
-Please download Sciter dynamic library yourself.
+## License
 
-[Windows](https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.win/x64/sciter.dll) |
-[Linux](https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.lnx/x64/libsciter-gtk.so) |
-[macOS](https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.osx/libsciter.dylib)
+[GNU Affero General Public License v3.0](LICENCE), the same license as upstream RustDesk.
+Copyright © Purslane Tech Pte. Ltd. and RustDesk contributors; Dktec changes © Dktec.
 
-## Raw Steps to build
+## Code signing policy
 
-- Prepare your Rust development env and C++ build env
+Free code signing provided by [SignPath.io](https://signpath.io), certificate by
+[SignPath Foundation](https://signpath.org).
 
-- Install [vcpkg](https://github.com/microsoft/vcpkg), and set `VCPKG_ROOT` env variable correctly
+> The application to SignPath Foundation is pending. Until it is approved, Windows releases are not signed.
 
-  - Windows: vcpkg install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
-  - Linux/macOS: vcpkg install libvpx libyuv opus aom
+- Committers and reviewers: [@ruandiego11](https://github.com/ruandiego11)
+- Approvers: [@ruandiego11](https://github.com/ruandiego11)
 
-- run `cargo run`
+Only files built by the GitHub Actions workflow of this repository from its own source code are signed:
+`SuporteDktec.exe`, `librustdesk.dll`, the portable `SuporteDktec-<version>-x86_64.exe` and the
+`SuporteDktec-<version>-x86_64.msi` installer. Third-party libraries included in the packages (for example
+Flutter plugin DLLs) are distributed unchanged and are not signed with this certificate. Every signing request
+is approved manually by an approver.
 
-## [Build](https://rustdesk.com/docs/en/dev/build/)
+## Privacy policy
 
-## How to Build on Linux
+Suporte Dktec does not collect telemetry or usage data and does not send personal data to Dktec or to third
+parties. Update checks against the upstream RustDesk servers are disabled in this build. The network
+connections the app makes are:
 
-### Ubuntu 18 (Debian 10)
+- **Dktec ID/relay server** (configured at build time and operated by Dktec, the company providing the
+  support): registers the device ID and online status and brokers or relays remote sessions.
+- **The technician's computer**, directly or through the relay, during a remote session. A session only
+  starts after the customer gives the technician the ID and password shown on screen, and the customer can end
+  it at any time.
+- **Public STUN servers** (`stun.l.google.com`, `stun.cloudflare.com`, `stun.nextcloud.com`), inherited from
+  upstream RustDesk, used to discover the network's public address so that direct connections are possible.
+  These servers only see the IP address of the computer making the request.
 
-```sh
-sudo apt install -y zip g++ gcc git curl wget nasm yasm libgtk-3-dev clang libxcb-randr0-dev libxdo-dev \
-        libxfixes-dev libxcb-shape0-dev libxcb-xfixes0-dev libasound2-dev libpulse-dev cmake make \
-        libclang-dev ninja-build libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libpam0g-dev
-```
-
-### openSUSE Tumbleweed
-
-```sh
-sudo zypper install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libXfixes-devel cmake alsa-lib-devel gstreamer-devel gstreamer-plugins-base-devel xdotool-devel pam-devel
-```
-
-### Fedora 28 (CentOS 8)
-
-```sh
-sudo yum -y install gcc-c++ git curl wget nasm yasm gcc gtk3-devel clang libxcb-devel libxdo-devel libXfixes-devel pulseaudio-libs-devel cmake alsa-lib-devel gstreamer1-devel gstreamer1-plugins-base-devel pam-devel
-```
-
-### Arch (Manjaro)
-
-```sh
-sudo pacman -Syu --needed unzip git cmake gcc curl wget yasm nasm zip make pkg-config clang gtk3 xdotool libxcb libxfixes alsa-lib pipewire
-```
-
-### Install vcpkg
-
-```sh
-git clone https://github.com/microsoft/vcpkg
-cd vcpkg
-git checkout 2023.04.15
-cd ..
-vcpkg/bootstrap-vcpkg.sh
-export VCPKG_ROOT=$HOME/vcpkg
-vcpkg/vcpkg install libvpx libyuv opus aom
-```
-
-### Fix libvpx (For Fedora)
-
-```sh
-cd vcpkg/buildtrees/libvpx/src
-cd *
-./configure
-sed -i 's/CFLAGS+=-I/CFLAGS+=-fPIC -I/g' Makefile
-sed -i 's/CXXFLAGS+=-I/CXXFLAGS+=-fPIC -I/g' Makefile
-make
-cp libvpx.a $HOME/vcpkg/installed/x64-linux/lib/
-cd
-```
-
-### Build
-
-```sh
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source $HOME/.cargo/env
-git clone --recurse-submodules https://github.com/rustdesk/rustdesk
-cd rustdesk
-mkdir -p target/debug
-wget https://raw.githubusercontent.com/c-smile/sciter-sdk/master/bin.lnx/x64/libsciter-gtk.so
-mv libsciter-gtk.so target/debug
-VCPKG_ROOT=$HOME/vcpkg cargo run
-```
-
-## How to build with Docker
-
-Begin by cloning the repository and building the Docker container:
-
-```sh
-git clone https://github.com/rustdesk/rustdesk
-cd rustdesk
-git submodule update --init --recursive
-docker build -t "rustdesk-builder" .
-```
-
-Then, each time you need to build the application, run the following command:
-
-```sh
-docker run --rm -it -v $PWD:/home/user/rustdesk -v rustdesk-git-cache:/home/user/.cargo/git -v rustdesk-registry-cache:/home/user/.cargo/registry -e PUID="$(id -u)" -e PGID="$(id -g)" rustdesk-builder
-```
-
-Note that the first build may take longer before dependencies are cached, subsequent builds will be faster. Additionally, if you need to specify different arguments to the build command, you may do so at the end of the command in the `<OPTIONAL-ARGS>` position. For instance, if you wanted to build an optimized release version, you would run the command above followed by `--release`. The resulting executable will be available in the target folder on your system, and can be run with:
-
-```sh
-target/debug/rustdesk
-```
-
-Or, if you're running a release executable:
-
-```sh
-target/release/rustdesk
-```
-
-Please ensure that you run these commands from the root of the RustDesk repository, or the application may not find the required resources. Also note that other cargo subcommands such as `install` or `run` are not currently supported via this method as they would install or run the program inside the container instead of the host.
-
-## File Structure
-
-- **[libs/hbb_common](https://github.com/rustdesk/rustdesk/tree/master/libs/hbb_common)**: video codec, config, tcp/udp wrapper, protobuf, fs functions for file transfer, and some other utility functions
-- **[libs/scrap](https://github.com/rustdesk/rustdesk/tree/master/libs/scrap)**: screen capture
-- **[libs/enigo](https://github.com/rustdesk/rustdesk/tree/master/libs/enigo)**: platform specific keyboard/mouse control
-- **[libs/clipboard](https://github.com/rustdesk/rustdesk/tree/master/libs/clipboard)**: file copy and paste implementation for Windows, Linux, macOS.
-- **[src/ui](https://github.com/rustdesk/rustdesk/tree/master/src/ui)**: obsolete Sciter UI (deprecated)
-- **[src/server](https://github.com/rustdesk/rustdesk/tree/master/src/server)**: audio/clipboard/input/video services, and network connections
-- **[src/client.rs](https://github.com/rustdesk/rustdesk/tree/master/src/client.rs)**: start a peer connection
-- **[src/rendezvous_mediator.rs](https://github.com/rustdesk/rustdesk/tree/master/src/rendezvous_mediator.rs)**: Communicate with [rustdesk-server](https://github.com/rustdesk/rustdesk-server), wait for remote direct (TCP hole punching) or relayed connection
-- **[src/platform](https://github.com/rustdesk/rustdesk/tree/master/src/platform)**: platform specific code
-- **[flutter](https://github.com/rustdesk/rustdesk/tree/master/flutter)**: Flutter code for desktop and mobile
-- **[flutter/web/js](https://github.com/rustdesk/rustdesk/tree/master/flutter/web/v1/js)**: JavaScript for Flutter web client
-
-## Screenshots
-
-![Connection Manager](https://github.com/rustdesk/rustdesk/assets/28412477/db82d4e7-c4bc-4823-8e6f-6af7eadf7651)
-
-![Connected to a Windows PC](https://github.com/rustdesk/rustdesk/assets/28412477/9baa91e9-3362-4d06-aa1a-7518edcbd7ea)
-
-![File Transfer](https://github.com/rustdesk/rustdesk/assets/28412477/39511ad3-aa9a-4f8c-8947-1cce286a46ad)
-
-![TCP Tunneling](https://github.com/rustdesk/rustdesk/assets/28412477/78e8708f-e87e-4570-8373-1360033ea6c5)
-
+Files, clipboard contents and screen images are only transferred during a remote session, between the
+customer's and the technician's computers.

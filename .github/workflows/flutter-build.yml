@@ -311,6 +311,7 @@ jobs:
           path: "./rustdesk"
 
       - name: Upload unsigned
+        id: upload-unsigned
         if: env.UPLOAD_ARTIFACT == 'true'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -323,6 +324,22 @@ jobs:
         run: |
           pip3 install requests argparse
           BASE_URL=${{ env.SIGN_BASE_URL }} SECRET_KEY=${{ secrets.SIGN_SECRET_KEY }} python3 res/job.py sign_files ./rustdesk/
+
+      # SignPath Foundation: só roda com as variáveis SIGNPATH_* do repositório configuradas.
+      # Cada pedido de assinatura espera aprovação manual no SignPath.
+      - name: Sign own files (SignPath)
+        if: env.UPLOAD_ARTIFACT == 'true' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: arquivos
+          github-artifact-id: ${{ steps.upload-unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 7200
+          output-artifact-directory: rustdesk
 
       - name: Build self-extracted executable
         shell: bash
@@ -354,6 +371,28 @@ jobs:
           mv $msi.FullName ../../SignOutput/SuporteDktec-${{ env.VERSION }}-${{ matrix.job.arch }}.msi
           sha256sum ../../SignOutput/SuporteDktec-*.msi
 
+      - name: Upload unsigned packages
+        id: upload-packages
+        if: env.UPLOAD_ARTIFACT == 'true' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pacotes-windows-${{ matrix.job.arch }}
+          path: SignOutput
+
+      - name: Sign packages (SignPath)
+        if: env.UPLOAD_ARTIFACT == 'true' && vars.SIGNPATH_ORGANIZATION_ID != ''
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: pacotes
+          github-artifact-id: ${{ steps.upload-packages.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 7200
+          output-artifact-directory: SignOutput
+
       - name: Sign rustdesk self-extracted file
         if: env.UPLOAD_ARTIFACT == 'true' && env.SIGN_BASE_URL != '-2'
         shell: bash
@@ -366,6 +405,10 @@ jobs:
         with:
           prerelease: true
           tag_name: ${{ env.TAG_NAME }}
+          body: |
+            Suporte Dktec: cliente de suporte remoto da Dktec / Dktec remote support client.
+            Code signing policy: https://github.com/ruandiego11/rustdesk#code-signing-policy
+            Privacy policy: https://github.com/ruandiego11/rustdesk#privacy-policy
           files: |
             ./SignOutput/SuporteDktec-*.msi
             ./SignOutput/SuporteDktec-*.exe

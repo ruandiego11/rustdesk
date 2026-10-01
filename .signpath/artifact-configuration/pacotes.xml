@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pacotes finais publicados na release (artefato pacotes-windows-*). -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <zip-file>
+    <pe-file path="SuporteDktec-*.exe" product-name="Suporte Dktec">
+      <authenticode-sign />
+    </pe-file>
+    <msi-file path="SuporteDktec-*.msi">
+      <authenticode-sign />
+    </msi-file>
+  </zip-file>
+</artifact-configuration>
