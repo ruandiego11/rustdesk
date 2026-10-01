@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "Dktec" "\0"
-            VALUE "FileDescription", "Suporte Remoto Dktec" "\0"
+            VALUE "FileDescription", "Suporte Dktec" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "rustdesk" "\0"
-            VALUE "LegalCopyright", "Dktec. Baseado no RustDesk (AGPL-3.0)." "\0"
+            VALUE "LegalCopyright", "Copyright © Dktec. Partes © Purslane Tech Pte. Ltd. Licença AGPL-3.0." "\0"
             VALUE "OriginalFilename", "rustdesk.exe" "\0"
-            VALUE "ProductName", "Suporte Remoto Dktec" "\0"
+            VALUE "ProductName", "Suporte Dktec" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

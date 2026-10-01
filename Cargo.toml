@@ -4,7 +4,7 @@ version = "1.4.9"
 authors = ["rustdesk <info@rustdesk.com>"]
 edition = "2021"
 build= "build.rs"
-description = "RustDesk Remote Desktop"
+description = "Suporte Remoto Dktec"
 default-run = "rustdesk"
 rust-version = "1.75"
 
@@ -210,9 +210,9 @@ exclude = ["vdi/host", "examples/custom_plugin"]
 libxdo-sys = { path = "libs/libxdo-sys-stub" }
 
 [package.metadata.winres]
-LegalCopyright = "Dktec. Baseado no RustDesk (AGPL-3.0)."
-ProductName = "Suporte Remoto Dktec"
-FileDescription = "Suporte Remoto Dktec"
+LegalCopyright = "Copyright © Dktec. Partes © Purslane Tech Pte. Ltd. Licença AGPL-3.0."
+ProductName = "Suporte Dktec"
+FileDescription = "Suporte Dktec"
 OriginalFilename = "rustdesk.exe"
 
 [target.'cfg(target_os="windows")'.build-dependencies]

@@ -26,10 +26,10 @@ windows = { version = "0.61", features = [
 native-windows-gui = {version = "1.0", default-features = false, features = ["animation-timer", "image-decoder"]}
 
 [package.metadata.winres]
-LegalCopyright = "Dktec. Baseado no RustDesk (AGPL-3.0)."
-ProductName = "Suporte Remoto Dktec"
+LegalCopyright = "Copyright © Dktec. Partes © Purslane Tech Pte. Ltd. Licença AGPL-3.0."
+ProductName = "Suporte Dktec"
 OriginalFilename = "rustdesk.exe"
-FileDescription = "Suporte Remoto Dktec"
+FileDescription = "Suporte Dktec"
 #ProductVersion = ""
 
 [target.'cfg(target_os="windows")'.build-dependencies]

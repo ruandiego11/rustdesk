@@ -3,7 +3,8 @@
   "titulo": "Suporte Dktec",
   "empresa": "Dktec",
   "descricao": "Suporte Remoto Dktec",
-  "copyright": "Dktec. Baseado no RustDesk (AGPL-3.0).",
+  "copyright": "Copyright © Dktec. Partes © Purslane Tech Pte. Ltd. Licença AGPL-3.0.",
+  "codigo_fonte": "https://github.com/ruandiego11/rustdesk/tree/dktec",
   "servidor": "192.168.168.131",
   "chave": "rv4k2t0hNlgBLAiyJFodaV26Tx18I2SksY0XZegyyy0=",
   "cores": {

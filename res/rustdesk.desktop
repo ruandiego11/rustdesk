@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=Suporte Remoto Dktec
-GenericName=Remote Desktop
-Comment=Remote Desktop
+Name=Suporte Dktec
+GenericName=Suporte remoto
+Comment=Suporte Remoto Dktec
 Exec=rustdesk %u
 Icon=rustdesk
 Terminal=false
@@ -15,5 +15,5 @@ StartupWMClass=rustdesk
 X-Desktop-File-Install-Version=0.23
 
 [Desktop Action new-window]
-Name=Open a New Window
+Name=Abrir nova janela
 Exec=rustdesk %u

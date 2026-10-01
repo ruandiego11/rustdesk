@@ -2447,6 +2447,7 @@ class _AboutState extends State<_About> {
                 SelectionArea(
                     child: Text('${translate('Fingerprint')}: $fingerprint')
                         .marginSymmetric(vertical: 4.0)),
+              if (!bind.isCustomClient())
               InkWell(
                   onTap: () {
                     launchUrlString('https://rustdesk.com/privacy.html');
@@ -2455,6 +2456,7 @@ class _AboutState extends State<_About> {
                     translate('Privacy Statement'),
                     style: linkStyle,
                   ).marginSymmetric(vertical: 4.0)),
+              if (!bind.isCustomClient())
               InkWell(
                   onTap: () {
                     launchUrlString('https://rustdesk.com');
@@ -2463,6 +2465,13 @@ class _AboutState extends State<_About> {
                     translate('Website'),
                     style: linkStyle,
                   ).marginSymmetric(vertical: 4.0)),
+              if (bind.isCustomClient())
+                InkWell(
+                    onTap: () => launchUrlString("https://github.com/ruandiego11/rustdesk/tree/dktec"),
+                    child: Text(
+                      'Código-fonte',
+                      style: linkStyle,
+                    ).marginSymmetric(vertical: 4.0)),
               Container(
                 decoration: const BoxDecoration(color: Color(0xFF2c8cff)),
                 padding:
@@ -2475,7 +2484,9 @@ class _AboutState extends State<_About> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Copyright © ${DateTime.now().toString().substring(0, 4)} Purslane Tech Pte. Ltd.\n$license',
+                            bind.isCustomClient()
+                                ? 'Copyright © ${DateTime.now().toString().substring(0, 4)} Dktec. Partes © Purslane Tech Pte. Ltd.\nLicença AGPL-3.0.'
+                                : 'Copyright © ${DateTime.now().toString().substring(0, 4)} Purslane Tech Pte. Ltd.\n$license',
                             style: const TextStyle(color: Colors.white),
                           ),
                           Text(

@@ -42,6 +42,21 @@ def replace(root, path, old, new, count=1):
     print(f"  {path}")
 
 
+def set_field(root, path, pattern, new):
+    """Troca o primeiro trecho que casa com `pattern` (regex, multilinha), qualquer que seja o valor atual."""
+    full = os.path.join(root, path)
+    with open(full, encoding="utf-8") as f:
+        text = f.read()
+    rx = re.compile(pattern, re.M)
+    if not rx.search(text):
+        sys.exit(f"ERRO: {path}: padrão {pattern!r} não encontrado")
+    updated = rx.sub(lambda _: new, text, count=1)
+    if updated != text:
+        with open(full, "w", encoding="utf-8") as f:
+            f.write(updated)
+        print(f"  {path}")
+
+
 def magick(*args):
     subprocess.run(["magick", *args], check=True)
 
@@ -208,6 +223,57 @@ def fixed_language(root, idioma):
     print(f"  src/lang/ptbr.rs ({len(extra)} traduções da marca)")
 
 
+def no_rustdesk_name(root, cfg):
+    """Tira o nome e os links do RustDesk do que o cliente vê. A licença AGPL-3.0 exige manter
+    o aviso de copyright original e o acesso ao código-fonte: ficam na página "Sobre"."""
+    titulo = cfg["titulo"]
+    for path in ("src/whiteboard/linux.rs", "src/whiteboard/macos.rs", "src/whiteboard/windows.rs"):
+        replace(root, path, '.with_title("RustDesk whiteboard")',
+                f'.with_title("{titulo} - Quadro branco")')
+    replace(root, "src/auth_2fa.rs", 'const ISSUER: &str = "RustDesk";',
+            f'const ISSUER: &str = "{cfg["app_name"]}";')
+
+    eula = "                              .marginOnly(bottom: em),\n                          InkWell(\n"
+    replace(root, "flutter/lib/desktop/pages/install_page.dart", eula,
+            eula.replace("                          InkWell(",
+                         "                          if (!bind.isCustomClient())\n"
+                         "                          InkWell("))
+
+    about = "flutter/lib/desktop/pages/desktop_setting_page.dart"
+    for url in ("https://rustdesk.com/privacy.html", "https://rustdesk.com"):
+        link = ("              InkWell(\n                  onTap: () {\n"
+                f"                    launchUrlString('{url}');\n")
+        replace(root, about, link, "              if (!bind.isCustomClient())\n" + link)
+    copyright_old = ("                            'Copyright © ${DateTime.now().toString().substring(0, 4)}"
+                     " Purslane Tech Pte. Ltd.\\n$license',\n")
+    copyright_new = ("                            bind.isCustomClient()\n"
+                     "                                ? 'Copyright © ${DateTime.now().toString().substring(0, 4)} "
+                     + cfg["empresa"] + ". Partes © Purslane Tech Pte. Ltd.\\nLicença AGPL-3.0.'\n"
+                     "                                : 'Copyright © ${DateTime.now().toString().substring(0, 4)}"
+                     " Purslane Tech Pte. Ltd.\\n$license',\n")
+    replace(root, about, copyright_old, copyright_new)
+    fonte = cfg.get("codigo_fonte", "")
+    if fonte:
+        website = ("                  child: Text(\n                    translate('Website'),\n"
+                   "                    style: linkStyle,\n                  ).marginSymmetric(vertical: 4.0)),\n")
+        replace(root, about, website, website +
+                "              if (bind.isCustomClient())\n"
+                "                InkWell(\n"
+                f"                    onTap: () => launchUrlString({dart_str(fonte)}),\n"
+                "                    child: Text(\n"
+                "                      'Código-fonte',\n"
+                "                      style: linkStyle,\n"
+                "                    ).marginSymmetric(vertical: 4.0)),\n")
+
+    set_field(root, "res/rustdesk.desktop", r"^Name=.*$", f"Name={titulo}")
+    set_field(root, "res/rustdesk.desktop", r"^GenericName=.*$", "GenericName=Suporte remoto")
+    set_field(root, "res/rustdesk.desktop", r"^Comment=.*$", f"Comment={cfg['descricao']}")
+    set_field(root, "res/rustdesk.desktop", r"^(\[Desktop Action new-window\]\n)Name=.*$",
+              "[Desktop Action new-window]\nName=Abrir nova janela")
+    set_field(root, "res/rustdesk-link.desktop", r"^Name=.*$", f"Name={titulo}")
+    set_field(root, "res/rustdesk.service", r"^Description=.*$", f"Description={titulo}")
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     with_images = "--sem-imagens" not in sys.argv
@@ -252,19 +318,18 @@ def main():
 
     print("Informações do executável:")
     rc = "flutter/windows/runner/Runner.rc"
-    replace(root, rc, 'VALUE "CompanyName", "Purslane Tech Pte. Ltd."', f'VALUE "CompanyName", "{cfg["empresa"]}"')
-    replace(root, rc, 'VALUE "FileDescription", "RustDesk Remote Desktop"',
-            f'VALUE "FileDescription", "{cfg["descricao"]}"')
-    replace(root, rc, 'VALUE "LegalCopyright", "Copyright © 2026 Purslane Tech Pte. Ltd. All rights reserved."',
-            f'VALUE "LegalCopyright", "{cfg["copyright"]}"')
-    replace(root, rc, 'VALUE "ProductName", "RustDesk"', f'VALUE "ProductName", "{cfg["descricao"]}"')
+    set_field(root, rc, r'VALUE "CompanyName", "[^"]*"', f'VALUE "CompanyName", "{cfg["empresa"]}"')
+    set_field(root, rc, r'VALUE "FileDescription", "[^"]*"', f'VALUE "FileDescription", "{cfg["titulo"]}"')
+    set_field(root, rc, r'VALUE "LegalCopyright", "[^"]*"', f'VALUE "LegalCopyright", "{cfg["copyright"]}"')
+    set_field(root, rc, r'VALUE "ProductName", "[^"]*"', f'VALUE "ProductName", "{cfg["titulo"]}"')
+    set_field(root, "Cargo.toml", r'^description = "[^"]*"', f'description = "{cfg["descricao"]}"')
     for cargo in ("Cargo.toml", "libs/portable/Cargo.toml"):
-        replace(root, cargo, 'LegalCopyright = "Copyright © 2026 Purslane Tech Pte. Ltd. All rights reserved."',
-                f'LegalCopyright = "{cfg["copyright"]}"')
-        replace(root, cargo, 'ProductName = "RustDesk"', f'ProductName = "{cfg["descricao"]}"')
-        replace(root, cargo, 'FileDescription = "RustDesk Remote Desktop"',
-                f'FileDescription = "{cfg["descricao"]}"')
-    replace(root, "res/rustdesk.desktop", "Name=RustDesk\n", f"Name={cfg['descricao']}\n")
+        set_field(root, cargo, r'^LegalCopyright = "[^"]*"', f'LegalCopyright = "{cfg["copyright"]}"')
+        set_field(root, cargo, r'^ProductName = "[^"]*"', f'ProductName = "{cfg["titulo"]}"')
+        set_field(root, cargo, r'^FileDescription = "[^"]*"', f'FileDescription = "{cfg["titulo"]}"')
+
+    print("Sem o nome RustDesk na tela:")
+    no_rustdesk_name(root, cfg)
 
     print("Interface (marca/patches):")
     apply_patches(root)
