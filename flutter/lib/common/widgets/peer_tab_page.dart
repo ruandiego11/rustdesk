@@ -166,9 +166,10 @@ class _PeerTabPageState extends State<PeerTabPage>
                             ? (selected ? decoBorder : deco)
                             : (selected ? decoBorder : null)),
                         child: Obx(() {
+                          final hovered = hover.value;
                           final color = selected
                               ? DkColors.sky400
-                              : (hover.value
+                              : (hovered
                                   ? DkColors.slate200
                                   : DkColors.slate400);
                           return Row(

@@ -112,128 +112,25 @@ class _HoverIconState extends State<_HoverIcon> {
   }
 }
 
-class _ArcPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
-    paint.shader = const SweepGradient(
-      colors: [DkColors.cyan, DkColors.blue600, DkColors.cyan],
-    ).createShader(rect);
-    canvas.drawArc(rect, -math.pi * 0.85, math.pi * 0.95, false, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _DashedRingPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..color = DkColors.sky400.withOpacity(0.35);
-    final r = size.width / 2;
-    const dashes = 28;
-    for (var i = 0; i < dashes; i++) {
-      final start = i * 2 * math.pi / dashes;
-      canvas.drawArc(Rect.fromCircle(center: Offset(r, r), radius: r - 1),
-          start, math.pi / dashes, false, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class DktecLogo extends StatefulWidget {
+class DktecLogo extends StatelessWidget {
   const DktecLogo({Key? key}) : super(key: key);
 
   @override
-  State<DktecLogo> createState() => _DktecLogoState();
-}
-
-class _DktecLogoState extends State<DktecLogo>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _spin = AnimationController(
-      vsync: this, duration: const Duration(seconds: 25))
-    ..repeat();
-
-  @override
-  void dispose() {
-    _spin.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 14, bottom: 8),
-      child: Column(
-        children: [
-          SizedBox(
-            width: 150,
-            height: 64,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                RotationTransition(
-                  turns: _spin,
-                  child: CustomPaint(
-                      size: const Size(64, 64), painter: _DashedRingPainter()),
-                ),
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ShaderMask(
-                          shaderCallback: (r) => const LinearGradient(colors: [
-                            DkColors.sky400,
-                            DkColors.blue500,
-                          ]).createShader(r),
-                          child: const Text('dk',
-                              style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.8,
-                                  color: Colors.white)),
-                        ),
-                        const Text('tec',
-                            style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.8,
-                                color: Colors.white)),
-                      ],
-                    ),
-                    Positioned(
-                      left: -8,
-                      right: -8,
-                      top: -6,
-                      bottom: -6,
-                      child: Transform.rotate(
-                        angle: -0.2,
-                        child: CustomPaint(painter: _ArcPainter()),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Text('SUPORTE REMOTO',
-              style: dkMono.copyWith(
-                  fontSize: 11,
-                  letterSpacing: 2.6,
-                  fontWeight: FontWeight.w600,
-                  color: DkColors.sky400.withOpacity(0.9))),
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 6),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+              color: DkColors.neonBlue.withOpacity(0.25), blurRadius: 16),
         ],
+      ),
+      child: Center(
+        child: Image.asset('assets/logo.png',
+            height: 72, fit: BoxFit.contain, filterQuality: FilterQuality.high),
       ),
     );
   }
@@ -591,7 +488,7 @@ class _ContactRowState extends State<_ContactRow> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           margin: const EdgeInsets.only(top: 6),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
           decoration: BoxDecoration(
             color: _hover ? DkColors.rowHover : DkColors.row,
             borderRadius: BorderRadius.circular(8),
@@ -604,19 +501,24 @@ class _ContactRowState extends State<_ContactRow> {
                   duration: const Duration(milliseconds: 150),
                   child: widget.leading),
               const SizedBox(width: 8),
-              Flexible(
-                child: Text(widget.text,
-                    overflow: TextOverflow.ellipsis,
-                    style: dkMono.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: DkColors.slate200)),
+              Expanded(
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(widget.text,
+                          overflow: TextOverflow.ellipsis,
+                          style: dkMono.copyWith(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w500,
+                              color: DkColors.slate200)),
+                    ),
+                    if (widget.badge != null) ...[
+                      const SizedBox(width: 6),
+                      widget.badge!,
+                    ],
+                  ],
+                ),
               ),
-              if (widget.badge != null) ...[
-                const SizedBox(width: 8),
-                widget.badge!,
-              ],
-              const Spacer(),
               AnimatedSlide(
                 offset: Offset(_hover ? 0.15 : 0, 0),
                 duration: const Duration(milliseconds: 150),
@@ -657,7 +559,7 @@ Widget dktecContactCard(BuildContext context) {
         text: dktecWhatsapp,
         hoverColor: DkColors.emerald400,
         badge: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
           decoration: BoxDecoration(
             color: DkColors.emerald500.withOpacity(0.2),
             borderRadius: BorderRadius.circular(4),
