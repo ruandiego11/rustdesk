@@ -161,6 +161,11 @@ def main():
             '    !is_custom_client()\n'
             '        && crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty()\n')
 
+    if cfg.get("idioma"):
+        replace(root, "src/lang.rs",
+                '&hbb_common::config::LocalConfig::get_option("lang"),\n        locale,\n',
+                f'&hbb_common::config::LocalConfig::get_option("lang"),\n        "{cfg["idioma"]}",\n')
+
     print("Cores e título:")
     common = "flutter/lib/common.dart"
     replace(root, common, "accent = Color(0xFF0071FF)", f"accent = Color(0xFF{c['primaria']})")
