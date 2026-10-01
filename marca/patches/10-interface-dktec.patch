@@ -1,0 +1,502 @@
+diff --git a/flutter/lib/common.dart b/flutter/lib/common.dart
+index 74e4c0e..c4da334 100644
+--- a/flutter/lib/common.dart
++++ b/flutter/lib/common.dart
+@@ -183,10 +183,10 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
+   );
+ 
+   static final dark = ColorThemeExtension(
+-    border: Color(0xFF555555),
++    border: Color(0xFF1E293B),
+     border2: Color(0xFFE5E5E5),
+     border3: Colors.white24,
+-    highlight: Color(0xFF3F3F3F),
++    highlight: Color(0xFF111B33),
+     drag_indicator: Colors.grey,
+     shadow: Colors.grey,
+     errorBannerBg: Color(0xFF470F2D),
+@@ -473,9 +473,9 @@ class MyTheme {
+   static ThemeData darkTheme = ThemeData(
+     useMaterial3: false,
+     brightness: Brightness.dark,
+-    hoverColor: Color.fromARGB(255, 45, 46, 53),
+-    scaffoldBackgroundColor: Color(0xFF18191E),
+-    dialogBackgroundColor: Color(0xFF18191E),
++    hoverColor: Color(0xFF111B33),
++    scaffoldBackgroundColor: Color(0xFF070B16),
++    dialogBackgroundColor: Color(0xFF0B1224),
+     appBarTheme: AppBarTheme(
+       shadowColor: Colors.transparent,
+     ),
+@@ -485,14 +485,14 @@ class MyTheme {
+         borderRadius: BorderRadius.circular(18.0),
+         side: BorderSide(
+           width: 1,
+-          color: Color(0xFF24252B),
++          color: Color(0xFF1C2C4D),
+         ),
+       ),
+     ),
+     scrollbarTheme: scrollbarThemeDark,
+     inputDecorationTheme: (isDesktop || isWebDesktop)
+         ? InputDecorationTheme(
+-            fillColor: Color(0xFF24252B),
++            fillColor: Color(0xFF091122),
+             filled: true,
+             isDense: true,
+             border: OutlineInputBorder(
+@@ -511,7 +511,9 @@ class MyTheme {
+         color: accent80,
+       ),
+     ),
+-    cardColor: Color(0xFF24252B),
++    cardColor: Color(0xFF0D1527),
++    dividerColor: Color(0xFF152037),
++    canvasColor: Color(0xFF0B1224),
+     visualDensity: VisualDensity.adaptivePlatformDensity,
+     tabBarTheme: const TabBarTheme(
+       labelColor: Colors.white70,
+@@ -534,7 +536,7 @@ class MyTheme {
+         : mobileTextButtonTheme,
+     elevatedButtonTheme: ElevatedButtonThemeData(
+       style: ElevatedButton.styleFrom(
+-        backgroundColor: MyTheme.accent,
++        backgroundColor: Color(0xFF2563EB),
+         foregroundColor: Colors.white,
+         disabledForegroundColor: Colors.white70,
+         disabledBackgroundColor: Colors.white10,
+@@ -545,7 +547,7 @@ class MyTheme {
+     ),
+     outlinedButtonTheme: OutlinedButtonThemeData(
+       style: OutlinedButton.styleFrom(
+-        backgroundColor: Color(0xFF24252B),
++        backgroundColor: Color(0xFF0D1527),
+         side: BorderSide(color: Colors.white12, width: 0.5),
+         disabledForegroundColor: Colors.white70,
+         foregroundColor: Colors.white70,
+@@ -560,15 +562,16 @@ class MyTheme {
+     listTileTheme: listTileTheme,
+     menuBarTheme: MenuBarThemeData(
+         style: MenuStyle(
+-            backgroundColor: MaterialStatePropertyAll(Color(0xFF121212)))),
++            backgroundColor: MaterialStatePropertyAll(Color(0xFF090F20)))),
+     colorScheme: ColorScheme.dark(
+-      primary: Colors.blue,
+-      secondary: accent,
+-      background: Color(0xFF24252B),
++      primary: Color(0xFF0066FF),
++      secondary: Color(0xFF38BDF8),
++      background: Color(0xFF080D1A),
++      surface: Color(0xFF0B1224),
+     ),
+     popupMenuTheme: PopupMenuThemeData(
+         shape: RoundedRectangleBorder(
+-      side: BorderSide(color: Colors.white24),
++      side: BorderSide(color: Color(0xFF1C2C4D)),
+       borderRadius: BorderRadius.all(Radius.circular(8.0)),
+     )),
+   ).copyWith(
+@@ -579,6 +582,7 @@ class MyTheme {
+   );
+ 
+   static ThemeMode getThemeModePreference() {
++    if (bind.isCustomClient()) return ThemeMode.dark;
+     return themeModeFromString(bind.mainGetLocalOption(key: kCommConfKeyTheme));
+   }
+ 
+diff --git a/flutter/lib/common/widgets/peer_tab_page.dart b/flutter/lib/common/widgets/peer_tab_page.dart
+index 4849f27..7b620dd 100644
+--- a/flutter/lib/common/widgets/peer_tab_page.dart
++++ b/flutter/lib/common/widgets/peer_tab_page.dart
+@@ -23,6 +23,7 @@ import 'package:provider/provider.dart';
+ import 'package:pull_down_button/pull_down_button.dart';
+ 
+ import '../../common.dart';
++import '../../desktop/widgets/dktec_home.dart';
+ import '../../models/platform_model.dart';
+ 
+ class PeerTabPage extends StatefulWidget {
+@@ -144,17 +145,12 @@ class _PeerTabPageState extends State<PeerTabPage>
+         physics: NeverScrollableScrollPhysics(),
+         children: model.visibleEnabledOrderedIndexs.map((t) {
+           final selected = model.currentTab == t;
+-          final color = selected
+-              ? MyTheme.tabbar(context).selectedTextColor
+-              : MyTheme.tabbar(context).unSelectedTextColor
+-            ?..withOpacity(0.5);
+           final hover = false.obs;
+           final deco = BoxDecoration(
+-              color: Theme.of(context).colorScheme.background,
+-              borderRadius: BorderRadius.circular(6));
+-          final decoBorder = BoxDecoration(
++              color: DkColors.cardAlt, borderRadius: BorderRadius.circular(6));
++          final decoBorder = const BoxDecoration(
+               border: Border(
+-            bottom: BorderSide(width: 2, color: color!),
++            bottom: BorderSide(width: 2.5, color: DkColors.sky400),
+           ));
+           counter += 1;
+           return ReorderableDragStartListener(
+@@ -169,8 +165,28 @@ class _PeerTabPageState extends State<PeerTabPage>
+                         decoration: (hover.value
+                             ? (selected ? decoBorder : deco)
+                             : (selected ? decoBorder : null)),
+-                        child: Icon(model.tabIcon(t), color: color)
+-                            .paddingSymmetric(horizontal: 4),
++                        child: Obx(() {
++                          final color = selected
++                              ? DkColors.sky400
++                              : (hover.value
++                                  ? DkColors.slate200
++                                  : DkColors.slate400);
++                          return Row(
++                            mainAxisSize: MainAxisSize.min,
++                            children: [
++                              Icon(model.tabIcon(t),
++                                  color: color, size: selected ? 17 : 15),
++                              const SizedBox(width: 6),
++                              Text(model.tabTooltip(t),
++                                  style: TextStyle(
++                                      fontSize: 12,
++                                      color: color,
++                                      fontWeight: selected
++                                          ? FontWeight.w600
++                                          : FontWeight.w500)),
++                            ],
++                          );
++                        }).paddingSymmetric(horizontal: 6),
+                       ).paddingSymmetric(horizontal: 4),
+                       onTap: isOptionFixed(kOptionPeerTabIndex)
+                           ? null
+diff --git a/flutter/lib/common/widgets/peers_view.dart b/flutter/lib/common/widgets/peers_view.dart
+index 5be5af2..2959374 100644
+--- a/flutter/lib/common/widgets/peers_view.dart
++++ b/flutter/lib/common/widgets/peers_view.dart
+@@ -17,6 +17,7 @@ import '../../common.dart';
+ import '../../models/peer_model.dart';
+ import '../../models/platform_model.dart';
+ import 'peer_card.dart';
++import '../../desktop/widgets/dktec_home.dart';
+ 
+ typedef PeerFilter = bool Function(Peer peer);
+ typedef PeerCardBuilder = Widget Function(Peer peer);
+@@ -187,25 +188,9 @@ class _PeersViewState extends State<_PeersView>
+       child: Consumer<Peers>(builder: (context, peers, child) {
+         if (peers.peers.isEmpty) {
+           gFFI.peerTabModel.setCurrentTabCachedPeers([]);
+-          return Center(
+-            child: Column(
+-              mainAxisAlignment: MainAxisAlignment.center,
+-              children: [
+-                Icon(
+-                  Icons.sentiment_very_dissatisfied_rounded,
+-                  color: Theme.of(context).tabBarTheme.labelColor,
+-                  size: 40,
+-                ).paddingOnly(bottom: 10),
+-                Text(
+-                  translate(
+-                    _emptyMessages[widget.peers.loadEvent] ?? 'Empty',
+-                  ),
+-                  textAlign: TextAlign.center,
+-                  style: TextStyle(
+-                    color: Theme.of(context).tabBarTheme.labelColor,
+-                  ),
+-                ),
+-              ],
++          return DktecEmptyState(
++            message: translate(
++              _emptyMessages[widget.peers.loadEvent] ?? 'Empty',
+             ),
+           );
+         } else {
+diff --git a/flutter/lib/desktop/pages/connection_page.dart b/flutter/lib/desktop/pages/connection_page.dart
+index 7af8c99..141220c 100644
+--- a/flutter/lib/desktop/pages/connection_page.dart
++++ b/flutter/lib/desktop/pages/connection_page.dart
+@@ -20,6 +20,7 @@ import '../../common/widgets/peer_tab_page.dart';
+ import '../../common/widgets/autocomplete.dart';
+ import '../../models/platform_model.dart';
+ import '../../desktop/widgets/material_mod_popup_menu.dart' as mod_menu;
++import '../widgets/dktec_home.dart';
+ 
+ class OnlineStatusWidget extends StatefulWidget {
+   const OnlineStatusWidget({Key? key, this.onSvcStatusChanged})
+@@ -133,7 +134,8 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
+             if (!isIncomingOnly) startServiceWidget(),
+             // ready && public
+             // No need to show the guide if is custom client.
+-            if (!isIncomingOnly) setupServerWidget(),
++            if (!isIncomingOnly) const Spacer(),
++            if (!isIncomingOnly) dktecServerInfo(),
+           ],
+         );
+ 
+@@ -163,7 +165,8 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
+               : stateGlobal.svcStatus.value == SvcStatus.notReady
+                   ? translate("not_ready_status")
+                   : translate('Ready'),
+-      style: TextStyle(fontSize: em),
++      style: TextStyle(
++          fontSize: 12, fontWeight: FontWeight.w500, color: DkColors.slate300),
+     );
+   }
+ 
+@@ -221,6 +224,7 @@ class _ConnectionPageState extends State<ConnectionPage>
+     super.initState();
+     _allPeersLoader.init(setState);
+     _idFocusNode.addListener(onFocusChanged);
++    dktecFocusRemoteId = () => _idFocusNode.requestFocus();
+     if (_idController.text.isEmpty) {
+       WidgetsBinding.instance.addPostFrameCallback((_) async {
+         final lastRemoteId = await bind.mainGetLastRemoteId();
+@@ -241,6 +245,7 @@ class _ConnectionPageState extends State<ConnectionPage>
+     _idController.dispose();
+     windowManager.removeListener(this);
+     _allPeersLoader.clear();
++    dktecFocusRemoteId = null;
+     _idFocusNode.removeListener(onFocusChanged);
+     _idFocusNode.dispose();
+     _idEditingController.dispose();
+@@ -309,16 +314,11 @@ class _ConnectionPageState extends State<ConnectionPage>
+         Expanded(
+             child: Column(
+           children: [
+-            Row(
+-              children: [
+-                Flexible(child: _buildRemoteIDTextField(context)),
+-              ],
+-            ).marginOnly(top: 22),
+-            SizedBox(height: 12),
+-            Divider().paddingOnly(right: 12),
++            _buildRemoteIDTextField(context).marginOnly(top: 20, right: 20),
++            SizedBox(height: 20),
+             Expanded(child: PeerTabPage()),
+           ],
+-        ).paddingOnly(left: 12.0)),
++        ).paddingOnly(left: 20.0)),
+         if (!isOutgoingOnly) const Divider(height: 1),
+         if (!isOutgoingOnly) OnlineStatusWidget()
+       ],
+@@ -341,16 +341,14 @@ class _ConnectionPageState extends State<ConnectionPage>
+   /// UI for the remote ID TextField.
+   /// Search for a peer.
+   Widget _buildRemoteIDTextField(BuildContext context) {
+-    var w = Container(
+-      width: 320 + 20 * 2,
+-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
+-      decoration: BoxDecoration(
+-          borderRadius: const BorderRadius.all(Radius.circular(13)),
+-          border: Border.all(color: Theme.of(context).colorScheme.background)),
+-      child: Ink(
++    var w = DktecHeroCard(
++      child: ConstrainedBox(
++        constraints: const BoxConstraints(maxWidth: 680),
+         child: Column(
++          crossAxisAlignment: CrossAxisAlignment.start,
+           children: [
+-            getConnectionPageTitle(context, false).marginOnly(bottom: 15),
++            dktecHeroTitle(getConnectionPageTitle(context, false))
++                .marginOnly(bottom: 16),
+             Row(
+               children: [
+                 Expanded(
+@@ -417,22 +415,17 @@ class _ConnectionPageState extends State<ConnectionPage>
+                           enableSuggestions: false,
+                           keyboardType: TextInputType.visiblePassword,
+                           focusNode: fieldFocusNode,
+-                          style: const TextStyle(
+-                            fontFamily: 'WorkSans',
+-                            fontSize: 22,
+-                            height: 1.4,
++                          style: dkMono.copyWith(
++                            fontSize: 15,
++                            letterSpacing: 1,
++                            color: Colors.white,
+                           ),
+                           maxLines: 1,
+-                          cursorColor:
+-                              Theme.of(context).textTheme.titleLarge?.color,
+-                          decoration: InputDecoration(
+-                              filled: false,
+-                              counterText: '',
+-                              hintText: _idInputFocused.value
++                          cursorColor: DkColors.sky400,
++                          decoration: dktecIdInputDecoration(
++                              _idInputFocused.value
+                                   ? null
+-                                  : translate('Enter Remote ID'),
+-                              contentPadding: const EdgeInsets.symmetric(
+-                                  horizontal: 15, vertical: 13)),
++                                  : translate('Enter Remote ID')),
+                           controller: fieldTextEditingController,
+                           inputFormatters: [IDTextInputFormatter()],
+                           onChanged: (v) {
+@@ -511,27 +504,32 @@ class _ConnectionPageState extends State<ConnectionPage>
+                     );
+                   },
+                 )),
+-              ],
+-            ),
+-            Padding(
+-              padding: const EdgeInsets.only(top: 13.0),
+-              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+-                SizedBox(
+-                  height: 28.0,
+-                  child: ElevatedButton(
+-                    onPressed: () {
+-                      onConnect();
+-                    },
+-                    child: Text(translate("Connect")),
+-                  ),
++                const SizedBox(width: 10),
++                DktecGradientButton(
++                  borderRadius:
++                      const BorderRadius.horizontal(left: Radius.circular(12)),
++                  padding:
++                      const EdgeInsets.symmetric(horizontal: 22, vertical: 13),
++                  onPressed: () {
++                    onConnect();
++                  },
++                  child: Row(children: [
++                    Text(translate("Connect"),
++                        style: const TextStyle(fontSize: 14)),
++                    const SizedBox(width: 8),
++                    const Icon(Icons.arrow_forward_rounded),
++                  ]),
+                 ),
+-                const SizedBox(width: 8),
+                 Container(
+-                  height: 28.0,
+-                  width: 28.0,
++                  height: 46.0,
++                  width: 40.0,
+                   decoration: BoxDecoration(
+-                    border: Border.all(color: Theme.of(context).dividerColor),
+-                    borderRadius: BorderRadius.circular(8),
++                    gradient: const LinearGradient(
++                        colors: [DkColors.sky500, DkColors.sky600]),
++                    border:
++                        Border.all(color: DkColors.blue400.withOpacity(0.4)),
++                    borderRadius: const BorderRadius.horizontal(
++                        right: Radius.circular(12)),
+                   ),
+                   child: Center(
+                     child: StatefulBuilder(
+@@ -541,9 +539,15 @@ class _ConnectionPageState extends State<ConnectionPage>
+                               child: _menuOpen.value
+                                   ? Transform.rotate(
+                                       angle: pi,
+-                                      child: Icon(IconFont.more, size: 14),
++                                      child: const Icon(
++                                          Icons.keyboard_arrow_down_rounded,
++                                          size: 20,
++                                          color: Colors.white),
+                                     )
+-                                  : Icon(IconFont.more, size: 14),
++                                  : const Icon(
++                                      Icons.keyboard_arrow_down_rounded,
++                                      size: 20,
++                                      color: Colors.white),
+                               onTapDown: (e) {
+                                 offset = e.globalPosition;
+                               },
+@@ -604,13 +608,12 @@ class _ConnectionPageState extends State<ConnectionPage>
+                     ),
+                   ),
+                 ),
+-              ]),
++              ],
+             ),
+           ],
+         ),
+       ),
+     );
+-    return Container(
+-        constraints: const BoxConstraints(maxWidth: 600), child: w);
++    return w;
+   }
+ }
+diff --git a/flutter/lib/desktop/pages/desktop_home_page.dart b/flutter/lib/desktop/pages/desktop_home_page.dart
+index ca49132..65b8966 100644
+--- a/flutter/lib/desktop/pages/desktop_home_page.dart
++++ b/flutter/lib/desktop/pages/desktop_home_page.dart
+@@ -83,18 +83,24 @@ class _DesktopHomePageState extends State<DesktopHomePage>
+     final isOutgoingOnly = bind.isOutgoingOnly();
+     final children = <Widget>[
+       if (!isOutgoingOnly) buildPresetPasswordWarning(),
+-      if (bind.isCustomClient())
+-        Align(
+-          alignment: Alignment.center,
+-          child: loadPowered(context),
++      const DktecLogo(),
++      dktecSidebarHeader(context),
++      if (!isOutgoingOnly)
++        DktecIdCard(
++            controller: gFFI.serverModel.serverId,
++            menu: buildPopupMenu(context)),
++      if (!isOutgoingOnly)
++        Consumer<ServerModel>(
++          builder: (context, model, child) => DktecPasswordCard(
++            controller: model.serverPasswd,
++            showOneTime: model.approveMode != 'click' &&
++                model.verificationMethod != kUsePermanentPassword,
++            onRefresh: () => bind.mainUpdateTemporaryPassword(),
++            onEdit: bind.isDisableSettings()
++                ? null
++                : () => DesktopSettingPage.switch2page(SettingsTabKey.safety),
++          ),
+         ),
+-      Align(
+-        alignment: Alignment.center,
+-        child: loadLogo(),
+-      ),
+-      buildTip(context),
+-      if (!isOutgoingOnly) buildIDBoard(context),
+-      if (!isOutgoingOnly) buildPasswordBoard(context),
+       if (!isOutgoingOnly)
+         dktecCopyButton(() => gFFI.serverModel.serverId.text,
+             () => gFFI.serverModel.serverPasswd.text),
+@@ -137,20 +143,22 @@ class _DesktopHomePageState extends State<DesktopHomePage>
+     return ChangeNotifierProvider.value(
+       value: gFFI.serverModel,
+       child: Container(
+-        width: isIncomingOnly ? 280.0 : 240.0,
+-        color: Theme.of(context).colorScheme.background,
++        width: isIncomingOnly ? 300.0 : 300.0,
++        color: DkColors.sidebar,
+         child: Stack(
+           children: [
+             Column(
+               children: [
+-                SingleChildScrollView(
+-                  controller: _leftPaneScrollController,
+-                  child: Column(
+-                    key: _childKey,
+-                    children: children,
++                Expanded(
++                  child: SingleChildScrollView(
++                    controller: _leftPaneScrollController,
++                    child: Column(
++                      key: _childKey,
++                      children: children,
++                    ),
+                   ),
+                 ),
+-                Expanded(child: Container())
++                if (!isIncomingOnly) dktecSidebarStatus(),
+               ],
+             ),
+             if (isOutgoingOnly)
+diff --git a/flutter/lib/desktop/pages/desktop_setting_page.dart b/flutter/lib/desktop/pages/desktop_setting_page.dart
+index ed9d5d1..3dad22c 100644
+--- a/flutter/lib/desktop/pages/desktop_setting_page.dart
++++ b/flutter/lib/desktop/pages/desktop_setting_page.dart
+@@ -416,7 +416,7 @@ class _GeneralState extends State<_General> {
+       controller: scrollController,
+       children: [
+         if (!isWeb) service(),
+-        theme(),
++        if (!bind.isCustomClient()) theme(),
+         if (!bind.isCustomClient())
+           _Card(title: 'Language', children: [language()]),
+         if (!isWeb) hwcodec(),

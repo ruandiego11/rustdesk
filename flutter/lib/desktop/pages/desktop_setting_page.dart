@@ -416,7 +416,7 @@ class _GeneralState extends State<_General> {
       controller: scrollController,
       children: [
         if (!isWeb) service(),
-        theme(),
+        if (!bind.isCustomClient()) theme(),
         if (!bind.isCustomClient())
           _Card(title: 'Language', children: [language()]),
         if (!isWeb) hwcodec(),

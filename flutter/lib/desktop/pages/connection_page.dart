@@ -20,6 +20,7 @@ import '../../common/widgets/peer_tab_page.dart';
 import '../../common/widgets/autocomplete.dart';
 import '../../models/platform_model.dart';
 import '../../desktop/widgets/material_mod_popup_menu.dart' as mod_menu;
+import '../widgets/dktec_home.dart';
 
 class OnlineStatusWidget extends StatefulWidget {
   const OnlineStatusWidget({Key? key, this.onSvcStatusChanged})
@@ -133,7 +134,8 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
             if (!isIncomingOnly) startServiceWidget(),
             // ready && public
             // No need to show the guide if is custom client.
-            if (!isIncomingOnly) setupServerWidget(),
+            if (!isIncomingOnly) const Spacer(),
+            if (!isIncomingOnly) dktecServerInfo(),
           ],
         );
 
@@ -163,7 +165,8 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
               : stateGlobal.svcStatus.value == SvcStatus.notReady
                   ? translate("not_ready_status")
                   : translate('Ready'),
-      style: TextStyle(fontSize: em),
+      style: TextStyle(
+          fontSize: 12, fontWeight: FontWeight.w500, color: DkColors.slate300),
     );
   }
 
@@ -221,6 +224,7 @@ class _ConnectionPageState extends State<ConnectionPage>
     super.initState();
     _allPeersLoader.init(setState);
     _idFocusNode.addListener(onFocusChanged);
+    dktecFocusRemoteId = () => _idFocusNode.requestFocus();
     if (_idController.text.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final lastRemoteId = await bind.mainGetLastRemoteId();
@@ -241,6 +245,7 @@ class _ConnectionPageState extends State<ConnectionPage>
     _idController.dispose();
     windowManager.removeListener(this);
     _allPeersLoader.clear();
+    dktecFocusRemoteId = null;
     _idFocusNode.removeListener(onFocusChanged);
     _idFocusNode.dispose();
     _idEditingController.dispose();
@@ -309,16 +314,11 @@ class _ConnectionPageState extends State<ConnectionPage>
         Expanded(
             child: Column(
           children: [
-            Row(
-              children: [
-                Flexible(child: _buildRemoteIDTextField(context)),
-              ],
-            ).marginOnly(top: 22),
-            SizedBox(height: 12),
-            Divider().paddingOnly(right: 12),
+            _buildRemoteIDTextField(context).marginOnly(top: 20, right: 20),
+            SizedBox(height: 20),
             Expanded(child: PeerTabPage()),
           ],
-        ).paddingOnly(left: 12.0)),
+        ).paddingOnly(left: 20.0)),
         if (!isOutgoingOnly) const Divider(height: 1),
         if (!isOutgoingOnly) OnlineStatusWidget()
       ],
@@ -341,16 +341,14 @@ class _ConnectionPageState extends State<ConnectionPage>
   /// UI for the remote ID TextField.
   /// Search for a peer.
   Widget _buildRemoteIDTextField(BuildContext context) {
-    var w = Container(
-      width: 320 + 20 * 2,
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
-      decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(13)),
-          border: Border.all(color: Theme.of(context).colorScheme.background)),
-      child: Ink(
+    var w = DktecHeroCard(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 680),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            getConnectionPageTitle(context, false).marginOnly(bottom: 15),
+            dktecHeroTitle(getConnectionPageTitle(context, false))
+                .marginOnly(bottom: 16),
             Row(
               children: [
                 Expanded(
@@ -417,22 +415,17 @@ class _ConnectionPageState extends State<ConnectionPage>
                           enableSuggestions: false,
                           keyboardType: TextInputType.visiblePassword,
                           focusNode: fieldFocusNode,
-                          style: const TextStyle(
-                            fontFamily: 'WorkSans',
-                            fontSize: 22,
-                            height: 1.4,
+                          style: dkMono.copyWith(
+                            fontSize: 15,
+                            letterSpacing: 1,
+                            color: Colors.white,
                           ),
                           maxLines: 1,
-                          cursorColor:
-                              Theme.of(context).textTheme.titleLarge?.color,
-                          decoration: InputDecoration(
-                              filled: false,
-                              counterText: '',
-                              hintText: _idInputFocused.value
+                          cursorColor: DkColors.sky400,
+                          decoration: dktecIdInputDecoration(
+                              _idInputFocused.value
                                   ? null
-                                  : translate('Enter Remote ID'),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 13)),
+                                  : translate('Enter Remote ID')),
                           controller: fieldTextEditingController,
                           inputFormatters: [IDTextInputFormatter()],
                           onChanged: (v) {
@@ -511,27 +504,32 @@ class _ConnectionPageState extends State<ConnectionPage>
                     );
                   },
                 )),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 13.0),
-              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                SizedBox(
-                  height: 28.0,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      onConnect();
-                    },
-                    child: Text(translate("Connect")),
-                  ),
+                const SizedBox(width: 10),
+                DktecGradientButton(
+                  borderRadius:
+                      const BorderRadius.horizontal(left: Radius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 22, vertical: 13),
+                  onPressed: () {
+                    onConnect();
+                  },
+                  child: Row(children: [
+                    Text(translate("Connect"),
+                        style: const TextStyle(fontSize: 14)),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward_rounded),
+                  ]),
                 ),
-                const SizedBox(width: 8),
                 Container(
-                  height: 28.0,
-                  width: 28.0,
+                  height: 46.0,
+                  width: 40.0,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                    borderRadius: BorderRadius.circular(8),
+                    gradient: const LinearGradient(
+                        colors: [DkColors.sky500, DkColors.sky600]),
+                    border:
+                        Border.all(color: DkColors.blue400.withOpacity(0.4)),
+                    borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(12)),
                   ),
                   child: Center(
                     child: StatefulBuilder(
@@ -541,9 +539,15 @@ class _ConnectionPageState extends State<ConnectionPage>
                               child: _menuOpen.value
                                   ? Transform.rotate(
                                       angle: pi,
-                                      child: Icon(IconFont.more, size: 14),
+                                      child: const Icon(
+                                          Icons.keyboard_arrow_down_rounded,
+                                          size: 20,
+                                          color: Colors.white),
                                     )
-                                  : Icon(IconFont.more, size: 14),
+                                  : const Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      size: 20,
+                                      color: Colors.white),
                               onTapDown: (e) {
                                 offset = e.globalPosition;
                               },
@@ -604,13 +608,12 @@ class _ConnectionPageState extends State<ConnectionPage>
                     ),
                   ),
                 ),
-              ]),
+              ],
             ),
           ],
         ),
       ),
     );
-    return Container(
-        constraints: const BoxConstraints(maxWidth: 600), child: w);
+    return w;
   }
 }

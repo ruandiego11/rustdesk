@@ -15,8 +15,9 @@
   "dica": "Informe o ID e a senha abaixo ao técnico da Dktec.",
   "contato": {
     "titulo": "Fale com a Dktec",
+    "subtitulo": "Suporte técnico e atendimento",
     "telefone": "+55 11 4205 8230",
-    "whatsapp": "",
+    "whatsapp": "+55 11 4205 8230",
     "email": "",
     "site": "",
     "horario": ""

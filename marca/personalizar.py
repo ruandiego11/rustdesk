@@ -100,6 +100,8 @@ def home_screen(root, cfg):
     contato = cfg.get("contato", {})
     consts = {
         "dktecTitulo": cfg["titulo"],
+        "dktecEmpresa": cfg["empresa"],
+        "dktecContatoSubtitulo": contato.get("subtitulo", ""),
         "dktecDica": cfg.get("dica", ""),
         "dktecContatoTitulo": contato.get("titulo", f"Fale com a {cfg['empresa']}"),
         "dktecTelefone": contato.get("telefone", ""),
@@ -137,6 +139,33 @@ def home_screen(root, cfg):
             "                                letterSpacing: 1),")
     replace(root, page, 'translate("desk_tip"),',
             'dktecDica.isNotEmpty ? dktecDica : translate("desk_tip"),')
+
+
+def patches():
+    folder = os.path.join(HERE, "patches")
+    if not os.path.isdir(folder):
+        return []
+    return [os.path.join(folder, p) for p in sorted(os.listdir(folder)) if p.endswith(".patch")]
+
+
+def git_apply(root, patch, *args):
+    return subprocess.run(["git", "-C", root, "apply", *args, patch],
+                          capture_output=True, text=True).returncode == 0
+
+
+def unapply_patches(root):
+    """Desfaz os patches de interface já aplicados, para as trocas de texto acharem o original."""
+    for patch in reversed(patches()):
+        if git_apply(root, patch, "-R", "--check"):
+            git_apply(root, patch, "-R")
+
+
+def apply_patches(root):
+    for patch in patches():
+        if not git_apply(root, patch, "--check"):
+            sys.exit(f"ERRO: o patch {os.path.basename(patch)} não aplica nesta versão do RustDesk")
+        git_apply(root, patch)
+        print(f"  {os.path.relpath(patch, HERE)}")
 
 
 def rust_str(s):
@@ -185,6 +214,7 @@ def main():
     root = os.path.abspath(args[0] if args else os.path.join(HERE, "..", "rustdesk"))
     cfg = load_config()
     c = cfg["cores"]
+    unapply_patches(root)
 
     print("Nome, servidor e chave:")
     replace(root, "libs/hbb_common/src/config.rs",
@@ -235,6 +265,9 @@ def main():
         replace(root, cargo, 'FileDescription = "RustDesk Remote Desktop"',
                 f'FileDescription = "{cfg["descricao"]}"')
     replace(root, "res/rustdesk.desktop", "Name=RustDesk\n", f"Name={cfg['descricao']}\n")
+
+    print("Interface (marca/patches):")
+    apply_patches(root)
 
     if with_images:
         print("Ícones e logo:")

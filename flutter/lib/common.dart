@@ -183,10 +183,10 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
   );
 
   static final dark = ColorThemeExtension(
-    border: Color(0xFF555555),
+    border: Color(0xFF1E293B),
     border2: Color(0xFFE5E5E5),
     border3: Colors.white24,
-    highlight: Color(0xFF3F3F3F),
+    highlight: Color(0xFF111B33),
     drag_indicator: Colors.grey,
     shadow: Colors.grey,
     errorBannerBg: Color(0xFF470F2D),
@@ -473,9 +473,9 @@ class MyTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: false,
     brightness: Brightness.dark,
-    hoverColor: Color.fromARGB(255, 45, 46, 53),
-    scaffoldBackgroundColor: Color(0xFF18191E),
-    dialogBackgroundColor: Color(0xFF18191E),
+    hoverColor: Color(0xFF111B33),
+    scaffoldBackgroundColor: Color(0xFF070B16),
+    dialogBackgroundColor: Color(0xFF0B1224),
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
     ),
@@ -485,14 +485,14 @@ class MyTheme {
         borderRadius: BorderRadius.circular(18.0),
         side: BorderSide(
           width: 1,
-          color: Color(0xFF24252B),
+          color: Color(0xFF1C2C4D),
         ),
       ),
     ),
     scrollbarTheme: scrollbarThemeDark,
     inputDecorationTheme: (isDesktop || isWebDesktop)
         ? InputDecorationTheme(
-            fillColor: Color(0xFF24252B),
+            fillColor: Color(0xFF091122),
             filled: true,
             isDense: true,
             border: OutlineInputBorder(
@@ -511,7 +511,9 @@ class MyTheme {
         color: accent80,
       ),
     ),
-    cardColor: Color(0xFF24252B),
+    cardColor: Color(0xFF0D1527),
+    dividerColor: Color(0xFF152037),
+    canvasColor: Color(0xFF0B1224),
     visualDensity: VisualDensity.adaptivePlatformDensity,
     tabBarTheme: const TabBarTheme(
       labelColor: Colors.white70,
@@ -534,7 +536,7 @@ class MyTheme {
         : mobileTextButtonTheme,
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: MyTheme.accent,
+        backgroundColor: Color(0xFF2563EB),
         foregroundColor: Colors.white,
         disabledForegroundColor: Colors.white70,
         disabledBackgroundColor: Colors.white10,
@@ -545,7 +547,7 @@ class MyTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        backgroundColor: Color(0xFF24252B),
+        backgroundColor: Color(0xFF0D1527),
         side: BorderSide(color: Colors.white12, width: 0.5),
         disabledForegroundColor: Colors.white70,
         foregroundColor: Colors.white70,
@@ -560,15 +562,16 @@ class MyTheme {
     listTileTheme: listTileTheme,
     menuBarTheme: MenuBarThemeData(
         style: MenuStyle(
-            backgroundColor: MaterialStatePropertyAll(Color(0xFF121212)))),
+            backgroundColor: MaterialStatePropertyAll(Color(0xFF090F20)))),
     colorScheme: ColorScheme.dark(
-      primary: Colors.blue,
-      secondary: accent,
-      background: Color(0xFF24252B),
+      primary: Color(0xFF0066FF),
+      secondary: Color(0xFF38BDF8),
+      background: Color(0xFF080D1A),
+      surface: Color(0xFF0B1224),
     ),
     popupMenuTheme: PopupMenuThemeData(
         shape: RoundedRectangleBorder(
-      side: BorderSide(color: Colors.white24),
+      side: BorderSide(color: Color(0xFF1C2C4D)),
       borderRadius: BorderRadius.all(Radius.circular(8.0)),
     )),
   ).copyWith(
@@ -579,6 +582,7 @@ class MyTheme {
   );
 
   static ThemeMode getThemeModePreference() {
+    if (bind.isCustomClient()) return ThemeMode.dark;
     return themeModeFromString(bind.mainGetLocalOption(key: kCommConfKeyTheme));
   }
 

@@ -23,6 +23,7 @@ import 'package:provider/provider.dart';
 import 'package:pull_down_button/pull_down_button.dart';
 
 import '../../common.dart';
+import '../../desktop/widgets/dktec_home.dart';
 import '../../models/platform_model.dart';
 
 class PeerTabPage extends StatefulWidget {
@@ -144,17 +145,12 @@ class _PeerTabPageState extends State<PeerTabPage>
         physics: NeverScrollableScrollPhysics(),
         children: model.visibleEnabledOrderedIndexs.map((t) {
           final selected = model.currentTab == t;
-          final color = selected
-              ? MyTheme.tabbar(context).selectedTextColor
-              : MyTheme.tabbar(context).unSelectedTextColor
-            ?..withOpacity(0.5);
           final hover = false.obs;
           final deco = BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-              borderRadius: BorderRadius.circular(6));
-          final decoBorder = BoxDecoration(
+              color: DkColors.cardAlt, borderRadius: BorderRadius.circular(6));
+          final decoBorder = const BoxDecoration(
               border: Border(
-            bottom: BorderSide(width: 2, color: color!),
+            bottom: BorderSide(width: 2.5, color: DkColors.sky400),
           ));
           counter += 1;
           return ReorderableDragStartListener(
@@ -169,8 +165,28 @@ class _PeerTabPageState extends State<PeerTabPage>
                         decoration: (hover.value
                             ? (selected ? decoBorder : deco)
                             : (selected ? decoBorder : null)),
-                        child: Icon(model.tabIcon(t), color: color)
-                            .paddingSymmetric(horizontal: 4),
+                        child: Obx(() {
+                          final color = selected
+                              ? DkColors.sky400
+                              : (hover.value
+                                  ? DkColors.slate200
+                                  : DkColors.slate400);
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(model.tabIcon(t),
+                                  color: color, size: selected ? 17 : 15),
+                              const SizedBox(width: 6),
+                              Text(model.tabTooltip(t),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: color,
+                                      fontWeight: selected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500)),
+                            ],
+                          );
+                        }).paddingSymmetric(horizontal: 6),
                       ).paddingSymmetric(horizontal: 4),
                       onTap: isOptionFixed(kOptionPeerTabIndex)
                           ? null

@@ -17,6 +17,7 @@ import '../../common.dart';
 import '../../models/peer_model.dart';
 import '../../models/platform_model.dart';
 import 'peer_card.dart';
+import '../../desktop/widgets/dktec_home.dart';
 
 typedef PeerFilter = bool Function(Peer peer);
 typedef PeerCardBuilder = Widget Function(Peer peer);
@@ -187,25 +188,9 @@ class _PeersViewState extends State<_PeersView>
       child: Consumer<Peers>(builder: (context, peers, child) {
         if (peers.peers.isEmpty) {
           gFFI.peerTabModel.setCurrentTabCachedPeers([]);
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.sentiment_very_dissatisfied_rounded,
-                  color: Theme.of(context).tabBarTheme.labelColor,
-                  size: 40,
-                ).paddingOnly(bottom: 10),
-                Text(
-                  translate(
-                    _emptyMessages[widget.peers.loadEvent] ?? 'Empty',
-                  ),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Theme.of(context).tabBarTheme.labelColor,
-                  ),
-                ),
-              ],
+          return DktecEmptyState(
+            message: translate(
+              _emptyMessages[widget.peers.loadEvent] ?? 'Empty',
             ),
           );
         } else {

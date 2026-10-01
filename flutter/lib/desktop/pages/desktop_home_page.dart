@@ -83,18 +83,24 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     final isOutgoingOnly = bind.isOutgoingOnly();
     final children = <Widget>[
       if (!isOutgoingOnly) buildPresetPasswordWarning(),
-      if (bind.isCustomClient())
-        Align(
-          alignment: Alignment.center,
-          child: loadPowered(context),
+      const DktecLogo(),
+      dktecSidebarHeader(context),
+      if (!isOutgoingOnly)
+        DktecIdCard(
+            controller: gFFI.serverModel.serverId,
+            menu: buildPopupMenu(context)),
+      if (!isOutgoingOnly)
+        Consumer<ServerModel>(
+          builder: (context, model, child) => DktecPasswordCard(
+            controller: model.serverPasswd,
+            showOneTime: model.approveMode != 'click' &&
+                model.verificationMethod != kUsePermanentPassword,
+            onRefresh: () => bind.mainUpdateTemporaryPassword(),
+            onEdit: bind.isDisableSettings()
+                ? null
+                : () => DesktopSettingPage.switch2page(SettingsTabKey.safety),
+          ),
         ),
-      Align(
-        alignment: Alignment.center,
-        child: loadLogo(),
-      ),
-      buildTip(context),
-      if (!isOutgoingOnly) buildIDBoard(context),
-      if (!isOutgoingOnly) buildPasswordBoard(context),
       if (!isOutgoingOnly)
         dktecCopyButton(() => gFFI.serverModel.serverId.text,
             () => gFFI.serverModel.serverPasswd.text),
@@ -137,20 +143,22 @@ class _DesktopHomePageState extends State<DesktopHomePage>
     return ChangeNotifierProvider.value(
       value: gFFI.serverModel,
       child: Container(
-        width: isIncomingOnly ? 280.0 : 240.0,
-        color: Theme.of(context).colorScheme.background,
+        width: isIncomingOnly ? 300.0 : 300.0,
+        color: DkColors.sidebar,
         child: Stack(
           children: [
             Column(
               children: [
-                SingleChildScrollView(
-                  controller: _leftPaneScrollController,
-                  child: Column(
-                    key: _childKey,
-                    children: children,
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _leftPaneScrollController,
+                    child: Column(
+                      key: _childKey,
+                      children: children,
+                    ),
                   ),
                 ),
-                Expanded(child: Container())
+                if (!isIncomingOnly) dktecSidebarStatus(),
               ],
             ),
             if (isOutgoingOnly)
