@@ -1769,7 +1769,7 @@ jobs:
           shopt -s nullglob
           for f in res/rustdesk-*.pkg.tar.zst res/rustdesk-*.zst; do
             base=$(basename "$f")
-            mv "$f" "res/SuporteDktec-${base#rustdesk-}"
+            sudo mv "$f" "res/SuporteDktec-${base#rustdesk-}"
           done
 
       - name: Publish archlinux package
