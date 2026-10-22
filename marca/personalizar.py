@@ -306,6 +306,12 @@ def main():
             '        OPTION_PRIVACY_AVATAR_SOURCE,\n'
             '        OPTION_PRIVACY_AVATAR,\n'
             '        OPTION_ENABLE_UDP_PUNCH,')
+    replace(root, "flutter/android/app/src/main/AndroidManifest.xml",
+            'android:label="RustDesk"',
+            f'android:label="{cfg["titulo"]}"')
+    replace(root, "flutter/android/app/src/main/res/values/strings.xml",
+            '<string name="app_name">RustDesk</string>',
+            f'<string name="app_name">{cfg["titulo"]}</string>')
     replace(root, "src/common.rs",
             'pub fn using_public_server() -> bool {\n'
             '    crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty()\n',

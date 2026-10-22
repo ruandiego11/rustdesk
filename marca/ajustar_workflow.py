@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Ajusta .github/workflows/flutter-build.yml do fork para o build Dktec.
 
-- compila só Windows x64 e Linux x86_64 (os outros jobs ficam desligados);
+- compila Windows x64, Linux x86_64 e o APK Android (os outros jobs ficam desligados);
 - aplica a marca (personalizar.py --sem-imagens) logo após o checkout, porque o
   submódulo libs/hbb_common chega do repositório oficial sem a marca;
 - renomeia o executável para <app_name>.exe e publica os arquivos com esse nome.
@@ -18,10 +18,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 WORKFLOW = ".github/workflows/flutter-build.yml"
 DISABLED_JOBS = {
     "build-for-windows-sciter", "build-rustdesk-ios", "build-for-macOS", "publish_unsigned",
-    "build-rustdesk-android", "build-rustdesk-android-universal", "build-rustdesk-linux-sciter",
+    "build-rustdesk-linux-sciter",
     "build-flatpak",
 }
-BRANDED_JOBS = {"build-for-windows-flutter", "build-rustdesk-linux"}
+BRANDED_JOBS = {
+    "build-for-windows-flutter", "build-rustdesk-linux",
+    "build-rustdesk-android", "build-rustdesk-android-universal",
+}
 BRAND_STEP = [
     "      - name: Aplicar marca Dktec\n",
     "        shell: bash\n",
