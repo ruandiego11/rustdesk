@@ -105,6 +105,32 @@ static void on_subwindow_created(FlPluginRegistry* registry) {
 
 GtkWidget *find_gl_area(GtkWidget *widget);
 
+static const char* kAppTitle = "Suporte Dktec";
+
+// Ícone empacotado com o aplicativo. O nome "rustdesk" no tema do sistema
+// aponta para o logo oficial quando o RustDesk também está instalado.
+static void apply_window_icon(GtkWindow* window) {
+  GdkPixbuf* icon = nullptr;
+  gchar* exe = g_file_read_link("/proc/self/exe", nullptr);
+  if (exe != nullptr) {
+    gchar* dir = g_path_get_dirname(exe);
+    gchar* path = g_build_filename(dir, "data", "flutter_assets", "assets", "icon.png", nullptr);
+    icon = gdk_pixbuf_new_from_file(path, nullptr);
+    g_free(path);
+    g_free(dir);
+    g_free(exe);
+  }
+  if (icon == nullptr) {
+    icon = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(), "suportedktec", 256,
+                                    GTK_ICON_LOOKUP_FORCE_SIZE, nullptr);
+  }
+  if (icon != nullptr) {
+    gtk_window_set_default_icon(icon);
+    gtk_window_set_icon(window, icon);
+    g_object_unref(icon);
+  }
+}
+
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
@@ -112,15 +138,7 @@ static void my_application_activate(GApplication* application) {
   GtkWindow* window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
   gtk_window_set_decorated(window, FALSE);
-  // try setting icon for rustdesk, which uses the system cache
-  GtkIconTheme* theme = gtk_icon_theme_get_default();
-  gint icons[4] = {256, 128, 64, 32};
-  for (int i = 0; i < 4; i++) {
-    GdkPixbuf* icon = gtk_icon_theme_load_icon(theme, "rustdesk", icons[i], GTK_ICON_LOOKUP_NO_SVG, NULL);
-    if (icon != nullptr) {
-      gtk_window_set_icon(window, icon);
-    }
-  }
+  apply_window_icon(window);
   // Use a header bar when running in GNOME as this is the common style used
   // by applications and is the setup most users will be using (e.g. Ubuntu
   // desktop).
@@ -142,11 +160,11 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "rustdesk");
+    gtk_header_bar_set_title(header_bar, kAppTitle);
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "rustdesk");
+    gtk_window_set_title(window, kAppTitle);
   }
 
   // auto bdw = bitsdojo_window_from(window); // <--- add this line

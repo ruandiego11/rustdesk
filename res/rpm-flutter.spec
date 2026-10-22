@@ -29,14 +29,14 @@ mkdir -p "%{buildroot}/usr/bin"
 install -Dm 644 $HBB/res/rustdesk.service -t "%{buildroot}/usr/share/rustdesk/files"
 install -Dm 644 $HBB/res/rustdesk.desktop -t "%{buildroot}/usr/share/rustdesk/files"
 install -Dm 644 $HBB/res/rustdesk-link.desktop -t "%{buildroot}/usr/share/rustdesk/files"
-install -Dm 644 $HBB/res/128x128@2x.png "%{buildroot}/usr/share/icons/hicolor/256x256/apps/rustdesk.png"
-install -Dm 644 $HBB/res/scalable.svg "%{buildroot}/usr/share/icons/hicolor/scalable/apps/rustdesk.svg"
+install -Dm 644 $HBB/res/128x128@2x.png "%{buildroot}/usr/share/icons/hicolor/256x256/apps/suportedktec.png"
+install -Dm 644 $HBB/res/scalable.svg "%{buildroot}/usr/share/icons/hicolor/scalable/apps/suportedktec.svg"
 
 %files
 /usr/share/rustdesk/*
 /usr/share/rustdesk/files/rustdesk.service
-/usr/share/icons/hicolor/256x256/apps/rustdesk.png
-/usr/share/icons/hicolor/scalable/apps/rustdesk.svg
+/usr/share/icons/hicolor/256x256/apps/suportedktec.png
+/usr/share/icons/hicolor/scalable/apps/suportedktec.svg
 /usr/share/rustdesk/files/rustdesk.desktop
 /usr/share/rustdesk/files/rustdesk-link.desktop
 
@@ -64,6 +64,7 @@ systemctl daemon-reload
 systemctl enable rustdesk
 systemctl start rustdesk
 update-desktop-database
+gtk-update-icon-cache -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
 
 %preun
 case "$1" in
@@ -89,6 +90,7 @@ case "$1" in
     rm /usr/share/applications/rustdesk.desktop || true
     rm /usr/share/applications/rustdesk-link.desktop || true
     update-desktop-database
+    gtk-update-icon-cache -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
   ;;
   1)
     # for upgrade

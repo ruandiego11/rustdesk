@@ -266,11 +266,13 @@ def no_rustdesk_name(root, cfg):
                 "                    ).marginSymmetric(vertical: 4.0)),\n")
 
     set_field(root, "res/rustdesk.desktop", r"^Name=.*$", f"Name={titulo}")
+    set_field(root, "res/rustdesk.desktop", r"^Icon=.*$", "Icon=suportedktec")
     set_field(root, "res/rustdesk.desktop", r"^GenericName=.*$", "GenericName=Suporte remoto")
     set_field(root, "res/rustdesk.desktop", r"^Comment=.*$", f"Comment={cfg['descricao']}")
     set_field(root, "res/rustdesk.desktop", r"^(\[Desktop Action new-window\]\n)Name=.*$",
               "[Desktop Action new-window]\nName=Abrir nova janela")
     set_field(root, "res/rustdesk-link.desktop", r"^Name=.*$", f"Name={titulo}")
+    set_field(root, "res/rustdesk-link.desktop", r"^Icon=.*$", "Icon=suportedktec")
     set_field(root, "res/rustdesk.service", r"^Description=.*$", f"Description={titulo}")
 
 
