@@ -57,16 +57,17 @@ case "$1" in
   2)
     # for upgrade
     systemctl stop rustdesk || true
+    systemctl stop suportedktec || true
   ;;
 esac
 
 %post
-cp /usr/share/rustdesk/files/rustdesk.service /etc/systemd/system/rustdesk.service
+cp /usr/share/rustdesk/files/rustdesk.service /etc/systemd/system/suportedktec.service
 cp /usr/share/rustdesk/files/rustdesk.desktop /usr/share/applications/
 cp /usr/share/rustdesk/files/rustdesk-link.desktop /usr/share/applications/
 systemctl daemon-reload
-systemctl enable rustdesk
-systemctl start rustdesk
+systemctl enable suportedktec
+systemctl start suportedktec
 update-desktop-database
 gtk-update-icon-cache -f /usr/share/icons/hicolor >/dev/null 2>&1 || true
 
@@ -75,8 +76,10 @@ case "$1" in
   0)
     # for uninstall
     systemctl stop rustdesk || true
+    systemctl stop suportedktec || true
     systemctl disable rustdesk || true
-    rm /etc/systemd/system/rustdesk.service || true
+    systemctl disable suportedktec || true
+    rm -f /etc/systemd/system/rustdesk.service /etc/systemd/system/suportedktec.service || true
   ;;
   1)
     # for upgrade
