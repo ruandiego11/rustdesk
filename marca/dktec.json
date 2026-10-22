@@ -5,8 +5,8 @@
   "descricao": "Suporte Remoto Dktec",
   "copyright": "Copyright © Dktec. Partes © Purslane Tech Pte. Ltd. Licença AGPL-3.0.",
   "codigo_fonte": "https://github.com/ruandiego11/rustdesk/tree/dktec",
-  "servidor": "192.168.168.131",
-  "chave": "rv4k2t0hNlgBLAiyJFodaV26Tx18I2SksY0XZegyyy0=",
+  "servidor": "rustdesk.dktec.com.br",
+  "chave": "CHqiPFY5WOstx2T5CMWFslqN97P8an8BpBcYvImOYKU=",
   "cores": {
     "primaria": "1C2FA3",
     "botao": "2D8EE6",
