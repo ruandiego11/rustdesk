@@ -291,6 +291,21 @@ def main():
     replace(root, "libs/hbb_common/src/config.rs",
             'RS_PUB_KEY: &str = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw="',
             f'RS_PUB_KEY: &str = "{cfg["chave"]}"')
+    replace(root, "libs/hbb_common/src/config.rs",
+            '    pub const OPTION_VIDEO_SAVE_DIRECTORY: &str = "video-save-directory";',
+            '    pub const OPTION_VIDEO_SAVE_DIRECTORY: &str = "video-save-directory";\n'
+            '    pub const OPTION_PRIVACY_DISPLAY_NAME_SOURCE: &str = "privacy-display-name-source";\n'
+            '    pub const OPTION_PRIVACY_DISPLAY_NAME: &str = "privacy-display-name";\n'
+            '    pub const OPTION_PRIVACY_AVATAR_SOURCE: &str = "privacy-avatar-source";\n'
+            '    pub const OPTION_PRIVACY_AVATAR: &str = "privacy-avatar";')
+    replace(root, "libs/hbb_common/src/config.rs",
+            '        OPTION_VIDEO_SAVE_DIRECTORY,\n        OPTION_ENABLE_UDP_PUNCH,',
+            '        OPTION_VIDEO_SAVE_DIRECTORY,\n'
+            '        OPTION_PRIVACY_DISPLAY_NAME_SOURCE,\n'
+            '        OPTION_PRIVACY_DISPLAY_NAME,\n'
+            '        OPTION_PRIVACY_AVATAR_SOURCE,\n'
+            '        OPTION_PRIVACY_AVATAR,\n'
+            '        OPTION_ENABLE_UDP_PUNCH,')
     replace(root, "src/common.rs",
             'pub fn using_public_server() -> bool {\n'
             '    crate::get_custom_rendezvous_server(get_option("custom-rendezvous-server")).is_empty()\n',

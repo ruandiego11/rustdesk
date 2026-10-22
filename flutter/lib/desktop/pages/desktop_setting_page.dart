@@ -4,6 +4,8 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image/image.dart' as img;
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/audio_input.dart';
@@ -52,6 +54,7 @@ class _TabInfo {
 
 enum SettingsTabKey {
   general,
+  privacy,
   safety,
   network,
   display,
@@ -65,6 +68,7 @@ class DesktopSettingPage extends StatefulWidget {
   final SettingsTabKey initialTabkey;
   static final List<SettingsTabKey> tabKeys = [
     SettingsTabKey.general,
+    if (!isWeb) SettingsTabKey.privacy,
     if (!isWeb &&
         !bind.isOutgoingOnly() &&
         !bind.isDisableSettings() &&
@@ -184,6 +188,10 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
           settingTabs.add(_TabInfo(
               tab, 'General', Icons.settings_outlined, Icons.settings));
           break;
+        case SettingsTabKey.privacy:
+          settingTabs.add(_TabInfo(tab, 'Privacy',
+              Icons.privacy_tip_outlined, Icons.privacy_tip));
+          break;
         case SettingsTabKey.safety:
           settingTabs.add(_TabInfo(tab, 'Security',
               Icons.enhanced_encryption_outlined, Icons.enhanced_encryption));
@@ -223,6 +231,9 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
       switch (tab) {
         case SettingsTabKey.general:
           children.add(const _General());
+          break;
+        case SettingsTabKey.privacy:
+          children.add(const _PrivacySettings());
           break;
         case SettingsTabKey.safety:
           children.add(const _Safety());
@@ -2061,6 +2072,290 @@ class _DisplayState extends State<_Display> {
     final children =
         otherDefaultSettings().map((e) => otherRow(e.$1, e.$2)).toList();
     return _Card(title: 'Other Default Options', children: children);
+  }
+}
+
+class _PrivacySettings extends StatefulWidget {
+  const _PrivacySettings({Key? key}) : super(key: key);
+
+  @override
+  State<_PrivacySettings> createState() => _PrivacySettingsState();
+}
+
+class _PrivacySettingsState extends State<_PrivacySettings> {
+  late final TextEditingController _nameController;
+  final ScrollController _scrollController = ScrollController();
+  bool _customDirPending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(
+      text: bind.mainGetLocalOption(key: kOptionPrivacyDisplayName),
+    );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  String get _nameSource {
+    final value = bind.mainGetLocalOption(key: kOptionPrivacyDisplayNameSource);
+    return value == 'custom' ? 'custom' : 'account';
+  }
+
+  String get _avatarSource {
+    final value = bind.mainGetLocalOption(key: kOptionPrivacyAvatarSource);
+    if (value == 'account' || value == 'custom') return value;
+    return 'none';
+  }
+
+  Future<void> _setNameSource(String value) async {
+    await bind.mainSetLocalOption(
+        key: kOptionPrivacyDisplayNameSource, value: value);
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _setAvatarSource(String value) async {
+    await bind.mainSetLocalOption(key: kOptionPrivacyAvatarSource, value: value);
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _pickAvatar() async {
+    final picked = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['png', 'jpg', 'jpeg', 'webp', 'bmp'],
+    );
+    final path = picked?.files.single.path;
+    if (path == null) return;
+    try {
+      final bytes = await File(path).readAsBytes();
+      final decoded = img.decodeImage(bytes);
+      if (decoded == null) {
+        showToast(translate('Failed'));
+        return;
+      }
+      final resized = img.copyResize(decoded, width: 256);
+      final encoded = img.encodeJpg(resized, quality: 82);
+      final dataUri = 'data:image/jpeg;base64,${base64Encode(encoded)}';
+      if (dataUri.length > 180000) {
+        showToast(translate('Failed'));
+        return;
+      }
+      await bind.mainSetLocalOption(key: kOptionPrivacyAvatar, value: dataUri);
+      await bind.mainSetLocalOption(
+          key: kOptionPrivacyAvatarSource, value: 'custom');
+      if (mounted) setState(() {});
+    } catch (_) {
+      showToast(translate('Failed'));
+    }
+  }
+
+  Future<void> _pickDirectory(String currentDir) async {
+    String? initialDirectory;
+    if (await Directory(currentDir).exists()) {
+      initialDirectory = currentDir;
+    }
+    final selected = await FilePicker.platform.getDirectoryPath(
+        initialDirectory: initialDirectory);
+    if (selected == null) return;
+    await bind.mainSetLocalOption(
+        key: kOptionVideoSaveDirectory, value: selected);
+    _customDirPending = true;
+    if (mounted) setState(() {});
+  }
+
+  Widget _previewBox(Widget child) {
+    return Container(
+      width: 96,
+      height: 96,
+      alignment: Alignment.center,
+      margin: const EdgeInsets.only(left: 12, top: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: child,
+    );
+  }
+
+  Widget _avatarPreview() {
+    final source = _avatarSource;
+    if (source == 'custom') {
+      final avatar = bind.mainGetLocalOption(key: kOptionPrivacyAvatar);
+      final image = buildAvatarWidget(
+        avatar: avatar,
+        size: 96,
+        borderRadius: 4,
+      );
+      if (image != null) return _previewBox(image);
+    } else if (source == 'account') {
+      final avatar = bind.mainResolveAvatarUrl(
+          avatar: gFFI.userModel.avatar.value);
+      final image = buildAvatarWidget(
+        avatar: avatar,
+        size: 96,
+        borderRadius: 4,
+      );
+      if (image != null) return _previewBox(image);
+    }
+    return _previewBox(
+      SvgPicture.asset(
+        'assets/icon.svg',
+        width: 72,
+        height: 72,
+        fit: BoxFit.contain,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final nameSource = _nameSource;
+    final avatarSource = _avatarSource;
+    final savedDir = bind.mainGetLocalOption(key: kOptionVideoSaveDirectory);
+    final customDir = _customDirPending || savedDir.isNotEmpty;
+    final shownDir = bind.mainVideoSaveDirectory(root: false);
+    final nameEnabled = nameSource == 'custom';
+    final avatarChooseEnabled = avatarSource == 'custom';
+    final dirFixed = isOptionFixed(kOptionVideoSaveDirectory);
+
+    return ListView(
+      controller: _scrollController,
+      children: [
+        _Card(title: 'User name', children: [
+          _Radio<String>(
+            context,
+            value: 'account',
+            groupValue: nameSource,
+            label: 'Account user',
+            onChanged: (value) => _setNameSource(value),
+          ),
+          _Radio<String>(
+            context,
+            value: 'custom',
+            groupValue: nameSource,
+            label: 'Custom',
+            onChanged: (value) => _setNameSource(value),
+          ),
+          TextField(
+            controller: _nameController,
+            enabled: nameEnabled,
+            autocorrect: false,
+            onChanged: (value) {
+              bind.mainSetLocalOption(
+                  key: kOptionPrivacyDisplayName, value: value.trim());
+            },
+            decoration: const InputDecoration(
+              isDense: true,
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              border: OutlineInputBorder(),
+            ),
+          ).workaroundFreezeLinuxMint().marginOnly(left: _kContentHMargin),
+          Text(
+            translate('Shown to the person receiving support'),
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).hintColor,
+            ),
+          ).marginOnly(left: _kContentHMargin, top: 6),
+        ]),
+        _Card(title: 'User image', children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    _Radio<String>(
+                      context,
+                      value: 'none',
+                      groupValue: avatarSource,
+                      label: 'None',
+                      onChanged: (value) => _setAvatarSource(value),
+                    ),
+                    _Radio<String>(
+                      context,
+                      value: 'account',
+                      groupValue: avatarSource,
+                      label: 'Account image',
+                      onChanged: (value) => _setAvatarSource(value),
+                    ),
+                    _Radio<String>(
+                      context,
+                      value: 'custom',
+                      groupValue: avatarSource,
+                      label: 'Custom',
+                      onChanged: (value) => _setAvatarSource(value),
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: ElevatedButton(
+                        onPressed: avatarChooseEnabled ? _pickAvatar : null,
+                        child: Text(translate('Choose...')),
+                      ).marginOnly(left: _kContentHMargin, top: 4),
+                    ),
+                  ],
+                ),
+              ),
+              _avatarPreview(),
+            ],
+          ),
+        ]),
+        _Card(title: 'Directory for screenshots and recordings', children: [
+          _Radio<String>(
+            context,
+            value: 'default',
+            groupValue: customDir ? 'custom' : 'default',
+            label: 'Default',
+            onChanged: dirFixed
+                ? null
+                : (_) async {
+                    _customDirPending = false;
+                    await bind.mainSetLocalOption(
+                        key: kOptionVideoSaveDirectory, value: '');
+                    if (mounted) setState(() {});
+                  },
+          ),
+          _Radio<String>(
+            context,
+            value: 'custom',
+            groupValue: customDir ? 'custom' : 'default',
+            label: 'Custom',
+            onChanged: dirFixed
+                ? null
+                : (_) {
+                    setState(() => _customDirPending = true);
+                  },
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton(
+              onPressed: !dirFixed && customDir
+                  ? () => _pickDirectory(shownDir)
+                  : null,
+              child: Text(translate('Choose...')),
+            ).marginOnly(left: _kContentHMargin, top: 4),
+          ),
+          SelectableText(
+            shownDir,
+            style: const TextStyle(fontSize: 13),
+          ).marginOnly(left: _kContentHMargin, top: 8),
+          Text(
+            translate('Screenshots and recordings are saved in this folder'),
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).hintColor,
+            ),
+          ).marginOnly(left: _kContentHMargin, top: 4),
+        ]),
+      ],
+    ).marginOnly(bottom: _kListViewBottomMargin);
   }
 }
 

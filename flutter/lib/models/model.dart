@@ -509,6 +509,29 @@ class FfiModel with ChangeNotifier {
         dialogManager.dismissAll();
       }
 
+      final captureDir =
+          isWeb ? '' : bind.mainVideoSaveDirectory(root: false);
+
+      String joinDir(String dir, String name) {
+        if (dir.isEmpty) return name;
+        final sep = dir.contains('\\') ? '\\' : '/';
+        return dir.endsWith(sep) ? '$dir$name' : '$dir$sep$name';
+      }
+
+      saveToDirectory() {
+        close();
+        final ts = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        final outputFile = joinDir(captureDir, 'screenshot_$ts.png');
+        Future.delayed(Duration.zero, () async {
+          final res = await bind.sessionHandleScreenshot(
+              sessionId: sessionId, action: '0:$outputFile');
+          if (res.isNotEmpty) {
+            msgBox(sessionId, 'custom-nook-nocancel-hasclose-error',
+                'Take screenshot', res, '', dialogManager);
+          }
+        });
+      }
+
       saveAs() {
         close();
         Future.delayed(Duration.zero, () async {
@@ -516,6 +539,7 @@ class FfiModel with ChangeNotifier {
           String? outputFile = await FilePicker.platform.saveFile(
             dialogTitle: '${translate('Save as')}...',
             fileName: 'screenshot_$ts.png',
+            initialDirectory: captureDir.isEmpty ? null : captureDir,
             allowedExtensions: ['png'],
             type: FileType.custom,
           );
@@ -543,6 +567,8 @@ class FfiModel with ChangeNotifier {
       }
 
       final List<Widget> buttons = [
+        if (captureDir.isNotEmpty)
+          dialogButton('Save', onPressed: saveToDirectory),
         dialogButton('${translate('Save as')}...', onPressed: saveAs),
         dialogButton('Copy to clipboard', onPressed: copyToClipboard),
         dialogButton('Cancel', onPressed: cancel),

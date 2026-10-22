@@ -105,6 +105,10 @@ const String kOptionEnableHwcodec = "enable-hwcodec";
 const String kOptionAllowAutoRecordIncoming = "allow-auto-record-incoming";
 const String kOptionAllowAutoRecordOutgoing = "allow-auto-record-outgoing";
 const String kOptionVideoSaveDirectory = "video-save-directory";
+const String kOptionPrivacyDisplayNameSource = "privacy-display-name-source";
+const String kOptionPrivacyDisplayName = "privacy-display-name";
+const String kOptionPrivacyAvatarSource = "privacy-avatar-source";
+const String kOptionPrivacyAvatar = "privacy-avatar";
 const String kOptionAccessMode = "access-mode";
 const String kOptionEnableKeyboard = "enable-keyboard";
 // "Settings -> Security -> Permissions"

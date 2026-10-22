@@ -955,6 +955,15 @@ pub fn video_save_directory(root: bool) -> String {
     }
 
     if let Some(user) = directories_next::UserDirs::new() {
+        if let Some(picture_dir) = user.picture_dir() {
+            if picture_dir.exists() {
+                return picture_dir.to_string_lossy().to_string();
+            }
+            let dir = try_create(picture_dir);
+            if !dir.is_empty() {
+                return dir;
+            }
+        }
         if let Some(video_dir) = user.video_dir() {
             let dir = try_create(&video_dir.join(&appname));
             if !dir.is_empty() {
@@ -978,7 +987,11 @@ pub fn video_save_directory(root: bool) -> String {
     // same order as above
     #[cfg(not(any(target_os = "android", target_os = "ios")))]
     if let Some(home) = crate::platform::get_active_user_home() {
-        let name = if cfg!(target_os = "macos") {
+        let name = if home.join("Imagens").exists() {
+            "Imagens"
+        } else if home.join("Pictures").exists() {
+            "Pictures"
+        } else if cfg!(target_os = "macos") {
             "Movies"
         } else {
             "Videos"

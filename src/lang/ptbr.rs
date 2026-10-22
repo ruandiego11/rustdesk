@@ -774,5 +774,16 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("View Camera", "Ver câmera"),
         ("token is required!", "O token é obrigatório!"),
         ("confirm-clear-shortcuts-inhibitor-permission-tip", "Isso vai redefinir a permissão de atalhos de teclado do RustDesk. Deseja continuar?"),
+        ("Privacy", "Privacidade"),
+        ("User name", "Nome do usuário"),
+        ("Account user", "Usuário da conta"),
+        ("Shown to the person receiving support", "Exibido para quem recebe o suporte, no lugar do usuário do computador"),
+        ("User image", "Imagem do usuário"),
+        ("None", "Nenhuma"),
+        ("Account image", "Imagem da conta"),
+        ("Choose...", "Escolher..."),
+        ("Directory for screenshots and recordings", "Diretório para capturas de tela e gravações"),
+        ("Screenshots and recordings are saved in this folder", "Capturas de tela e gravações são salvas nesta pasta"),
+        ("Save", "Salvar"),
     ].iter().cloned().collect();
 }

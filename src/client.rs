@@ -2660,21 +2660,41 @@ impl LoginConfigHandler {
         } else {
             (my_id, self.id.clone())
         };
-        let mut avatar = get_builtin_option(keys::OPTION_AVATAR);
-        if avatar.is_empty() {
-            avatar = serde_json::from_str::<serde_json::Value>(&LocalConfig::get_option(
-                "user_info",
-            ))
-            .ok()
-            .and_then(|x| {
-                x.get("avatar")
-                    .and_then(|x| x.as_str())
-                    .map(|x| x.trim().to_owned())
-            })
-            .unwrap_or_default();
+        let avatar_source = LocalConfig::get_option(keys::OPTION_PRIVACY_AVATAR_SOURCE);
+        let avatar = if avatar_source == "custom" {
+            let custom = LocalConfig::get_option(keys::OPTION_PRIVACY_AVATAR);
+            if custom.starts_with("data:image/") && custom.len() <= 200_000 {
+                custom
+            } else {
+                String::new()
+            }
+        } else if avatar_source == "account" {
+            let mut avatar = get_builtin_option(keys::OPTION_AVATAR);
+            if avatar.is_empty() {
+                avatar = serde_json::from_str::<serde_json::Value>(&LocalConfig::get_option(
+                    "user_info",
+                ))
+                .ok()
+                .and_then(|x| {
+                    x.get("avatar")
+                        .and_then(|x| x.as_str())
+                        .map(|x| x.trim().to_owned())
+                })
+                .unwrap_or_default();
+            }
+            resolve_avatar_url(avatar)
+        } else {
+            String::new()
+        };
+        let mut display_name = String::new();
+        if LocalConfig::get_option(keys::OPTION_PRIVACY_DISPLAY_NAME_SOURCE) == "custom" {
+            display_name = LocalConfig::get_option(keys::OPTION_PRIVACY_DISPLAY_NAME)
+                .trim()
+                .to_owned();
         }
-        avatar = resolve_avatar_url(avatar);
-        let mut display_name = get_builtin_option(keys::OPTION_DISPLAY_NAME);
+        if display_name.is_empty() {
+            display_name = get_builtin_option(keys::OPTION_DISPLAY_NAME);
+        }
         if display_name.is_empty() {
             display_name =
                 serde_json::from_str::<serde_json::Value>(&LocalConfig::get_option("user_info"))
